@@ -29,7 +29,7 @@ Before running the program, one needs to install the dependencies too:
 	cvx_setup
 	```
 
-	to correctly set up CVX and let it automatically find available solvers (e.g. if one wants to use the additional Mosek SDP backend solver instead of the default SDPT3 backend SDP solver, one would have to first install Mosek with license, and add Mosek path to the MATLAB working path - alternatively, one can request CVX for an academic license which includes Mosek). Some of our protocols run better with Mosek then SDPT3.
+	to correctly set up CVX and let it automatically find available solvers (e.g. if one wants to use the additional Mosek SDP backend solver instead of the default SDPT3 backend SDP solver, one would have to first install Mosek with license, and add Mosek path to the MATLAB working path - alternatively, one can request CVX for an academic license which includes Mosek). Some of our protocols run better with Mosek than SDPT3.
 
 After dependencies are installed, one can edit main.m, and select one of the presets which already contains a combination of protocol, channel, solver module, as well as the appropriate parameters and options. An example would be
 
@@ -94,4 +94,4 @@ OpenQKDSecurity is licensed under the MIT license. See LICENSE for details.
 
 ## Acknowlegements
 
-[placeholder for funding information]
+This work has been performed at the Institute for Quantum Computing (IQC), which is supported by Innovation, Science and Economic Development (ISED) Canada. This research has been supported by NSERC Collaborative Research and Development (CRD) Program and Discovery Grants Program. Financial support for this project has been partially provided by Huawei Technologies Canada Co., Ltd.
