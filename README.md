@@ -52,7 +52,7 @@ addpath(genpath('C:\Program Files\Mosek\9.2\toolbox\R2015a')) %sample external m
 
 
 ## Architecture
-<img src="fig1.png" width="800">
+<img src="architecture.png" width="800">
 
 The platform is modularized by design, with three main parts: 
 - input files (protocol description and channel model, as well as parameters/options, are all combined in a preset)
