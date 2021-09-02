@@ -59,7 +59,7 @@ The platform is modularized by design, with three main parts:
 - solver module (here two modules are used for the first and second step process to bound the key rate)
 - main iteration (which scans over range of specified parameters, or optimize over given optimizable parameters)
 
-The modules accepts and returns given inferfacing data formats (for details please refer to the user guide), and otherwise treat the other modules as decoupled black boxes, making swapping between modules convenient.
+The modules accepts and returns given interfacing data formats (for details please refer to the user guide), and otherwise treat the other modules as decoupled black boxes, making swapping between modules convenient.
 
 ## Current Status
 
@@ -71,7 +71,7 @@ Currently in the package we provide three protocols:
 
 There are also three solver modules included:
 - Asymptotic solver
-- Asymptotic solver with decoy states
+- Asymptotic solver with inequalities (for e.g. decoy states)
 - Finite-size solver
 
 We plan to gradually add in more protocols and solver modules in the future, and also welcome contributors too add in their own protocols and solver modules.
