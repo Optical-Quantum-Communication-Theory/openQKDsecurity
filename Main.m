@@ -43,7 +43,7 @@ clc;
 %10.(archived) 'MDIBB84Simple_finite'
 %11. any custom setting (can be composed based upon templatePreset)
 
-preset='DMCVQKD_asymptotic';
+preset='pmBB84_asymptotic';
 [protocolDescription,channelModel,leakageEC,parameters,solverOptions]=feval(preset);
 
 %%%%%%%%%%%%%%%%%%%%% Run Main Iteration %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
