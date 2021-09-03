@@ -1,6 +1,7 @@
 **Scientific Framework and Software Concept Development:**
 Patrick Coles
 Jie Lin
+Norbert Lutkenhaus
 Eric Metodiev
 Ian George
 Nicky Kai Hong Li
