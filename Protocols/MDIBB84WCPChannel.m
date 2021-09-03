@@ -6,7 +6,7 @@
 % Decoy state analysis is performed inside this channel model function. 
 % *** The analysis might take a few minutes. ***
 % *** Note that parallel toolbox can be used here. ***
-% Replace "for" with "parfor" on line 155 to turn it on.
+% Replace "parfor" with "for" on line 153 to turn it off.
 %
 % Additional information including masks (denoting which statistics are
 % bounded by decoy state analysis and therefore uncertain) 
