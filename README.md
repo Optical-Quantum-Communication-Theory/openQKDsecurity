@@ -34,7 +34,7 @@ Before running the program, one needs to install the dependencies too:
 After dependencies are installed, one can edit main.m, and select one of the presets which already contains a combination of protocol, channel, solver module, as well as the appropriate parameters and options. An example would be
 
 ```
-preset='pmBB84Lossy_asymptotic';
+preset='pmBB84_asymptotic';
 ```
 
 or choose the 'custom' preset and edit the input files manually. 
