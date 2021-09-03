@@ -30,7 +30,7 @@ function parameters=setParameters()
     %%%%%%%%%%%%%%%% 1.parameter to scan over %%%%%%%%%%%%%%%%
     %must name at least one parameter to scan (can be a single-point array if only interested in a fixed value)
     
-    parameters.scan.eta = 10.^(-0.2*(0:5:10)/10); %channel transmittance
+    parameters.scan.eta = 10.^(-0.2*(0:5:0)/10); %channel transmittance
     
 
     %%%%%%%%%%%%%%%% 2.fixed parameters %%%%%%%%%%%%%%%%
