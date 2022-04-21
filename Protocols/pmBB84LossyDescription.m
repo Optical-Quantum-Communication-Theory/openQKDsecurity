@@ -33,8 +33,8 @@ function protocolDescription = pmBB84LossyDescription(names,p)
     
     % kraus operator for post-processing G map. The ordering of registers
     % is R, A, B, the two-dimensional announcement register (Alice's & Bob's announcement registers combined after sifting)
-    krausOpZ = kron(kron(kron(zket(2,1),diag([1,0,0,0]))+ kron(zket(2,2),diag([0,1,0,0])), sqrt(pz) * eye(dimB)), [1;0]); % for Z basis
-    krausOpX = kron(kron(kron(zket(2,1),diag([0,0,1,0]))+ kron(zket(2,2),diag([0,0,0,1])),sqrt(1-pz) * eye(dimB)),[0;1]); % for X basis
+    krausOpZ = kron(kron(kron(zket(2,1),diag([1,0,0,0]))+ kron(zket(2,2),diag([0,1,0,0])), sqrt(pz) * diag([0,1,1])), [1;0]); % for Z basis
+    krausOpX = kron(kron(kron(zket(2,1),diag([0,0,1,0]))+ kron(zket(2,2),diag([0,0,0,1])),sqrt(1-pz) * diag([0,1,1])),[0;1]); % for X basis
     krausOp = {krausOpZ, krausOpX};
  
     % components for the pinching Z map

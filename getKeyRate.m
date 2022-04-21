@@ -15,7 +15,7 @@
 %%
 
 function [lowerBound, upperBound, FWBound, debugInfo]=getKeyRate(protocolDescription,channelModel,leakageEC,solverOptions,p,names)
-
+    cvx_begin
     tstart_iteration = tic;
     try
         cvx_solver(solverOptions.globalSetting.cvxSolver);

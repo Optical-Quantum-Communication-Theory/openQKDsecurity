@@ -43,7 +43,7 @@ clc;
 %10.(archived) 'MDIBB84Simple_finite'
 %11. any custom setting (can be composed based upon templatePreset)
 
-preset='pmBB84_asymptotic';
+preset='dDimPreset';
 [protocolDescription,channelModel,leakageEC,parameters,solverOptions]=feval(preset);
 
 %%%%%%%%%%%%%%%%%%%%% Run Main Iteration %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -70,4 +70,4 @@ save('output.mat','results','parameters');
 %2.'linear-log': plot x versus log10(y)
 %3.'km-log': plot -log10(x)*10/0.2 (x is assumed to be transmittance and converted to km) versus log(y)
 %4.'none': do not plot
-plotResults(results,parameters,'none')
+plotResults(results,parameters,'linear')
