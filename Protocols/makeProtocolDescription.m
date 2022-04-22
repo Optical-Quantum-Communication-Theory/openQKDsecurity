@@ -34,17 +34,12 @@ function protocolDescription = makeProtocolDescription(names,p)
     ResB = Bob.Res;
     
     g = keyMap.g;
-    dimR = keyMap.dimR;
     direct_reconciliation = keyMap.direct_reconciliation;
     
     dimA = length(PA{1});
     dimPA = length(PA);
-    dimAnnA = max(AnnA) + 1;
-    dimResA = max(ResA) + 1;
     dimB = length(PB{1});
     dimPB = length(PB);
-    dimAnnB = max(AnnB) + 1;
-    dimResB = max(ResB) + 1;
     
     %%% ***** Observables begin ***** %%%
     
@@ -73,23 +68,22 @@ function protocolDescription = makeProtocolDescription(names,p)
     
     %%% ***** Observables end ***** %%%
     
-    %%% ***** Creating G map begin ***** %%%
+    %%% ***** Creating G/Z map begin ***** %%%
     krausOps = {};
 
     AKrausOps = makeAMap(Alice, Bob, direct_reconciliation);
-    Pi = makePi(Alice, Bob, A, direct_reconciliation);
-    V = makeV(Alice, Bob, A, keyMap);
-    VPi = V*Pi;
+    VPi = makeVPi(Alice, Bob, A, keyMap);
     
+    % Constructing Kraus Operators for G map
     for iAKrausOps = 1:length(AKrausOps)
         K = VPi*AKrausOps{iAKrausOps};
         if sum(abs(K), 'all') ~= 0 % make sure there aren't any zero operators
             krausOps{end + 1} = K;
         end
     end
-    %%% ***** Creating G map end ***** %%%
 
     ZKrausOp = makeZMap(Alice, Bob, keyMap);
+    %%% ***** Creating G/Z map end ***** %%%
     
     protocolDescription.krausOp = krausOps; % krausOps for G map
     protocolDescription.keyMap = ZKrausOp; % krausOps for Z map
@@ -133,13 +127,15 @@ function AKrausOps = makeAMap(Alice, Bob, direct_reconciliation)
     if direct_reconciliation
         % Creating Kraus operators for A and B systems
         KA = {};
-        for iAnnA = 0:dimAnnA - 1
+        for iAnnA = 0:dimAnnA - 1 
+            % One Kraus operator per announcement
             KAi = zeros(dimA*dimAnnA*dimResA, dimA);
-            aKet = idxToComp(iAnnA, dimAnnA);
+            aKet = idxToComp(iAnnA, dimAnnA); % \tilde{A} register
             for jResA = 0:dimResA - 1
-                alpha_aKet = idxToComp(jResA, dimResA);
+                alpha_aKet = idxToComp(jResA, dimResA); %\bar{A} register
                 for kPA = 1:dimPA
                     if ((AnnA(kPA) == iAnnA) && (ResA(kPA) == jResA))
+                        % Only add the term if the announcement & result match
                         POVM = PA{kPA};
                         KAi = KAi + kron(sqrtm(PA{kPA}), kron(aKet, alpha_aKet));
                     end
@@ -149,8 +145,10 @@ function AKrausOps = makeAMap(Alice, Bob, direct_reconciliation)
         end
         KB = {};
         for iAnnB = 0:dimAnnB - 1
+            % One Kraus operator per announcement
             KBi = zeros(dimB*dimAnnB, dimB);
-            bKet = idxToComp(iAnnB, dimAnnB);
+            bKet = idxToComp(iAnnB, dimAnnB); %\tilde{B} register
+            % Note: no \bar{B} register needed for direct recon.
             for kPB = 1:dimPB
                 if (AnnB(kPB) == iAnnB)
                     POVM = PB{kPB};
@@ -208,48 +206,7 @@ function AKrausOps = makeAMap(Alice, Bob, direct_reconciliation)
     end
 end
 
-function Pi = makePi(Alice, Bob, A, direct_reconciliation)
-    PA = Alice.POVM;
-    AnnA = Alice.Ann;
-    ResA = Alice.Res;
-    
-    PB = Bob.POVM;
-    AnnB = Bob.Ann;
-    ResB = Bob.Res;
-
-    dimA = length(PA{1});
-    dimAnnA = max(AnnA) + 1;
-    dimResA = max(ResA) + 1;
-    dimB = length(PB{1});
-    dimAnnB = max(AnnB) + 1;
-    dimResB = max(ResB) + 1;
-
-    if direct_reconciliation
-        %%% Creating Pi map
-        Pi = zeros(dimA*dimAnnA*dimResA*dimB*dimAnnB);
-        for iA = 1:length(A)
-            a = A{iA}(1);
-            aKet = idxToComp(a, dimAnnA);
-            b = A{iA}(2);
-            bKet = idxToComp(b, dimAnnB);
-            term = kron(eye(dimA), kron(aKet*aKet', kron(eye(dimResA*dimB), bKet*bKet')));
-            Pi = Pi + term;
-        end
-    else
-        %%% Creating Pi map
-        Pi = zeros(dimA*dimAnnA*dimB*dimAnnB*dimResB);
-        for iA = 1:length(A)
-            a = A{iA}(1);
-            aKet = idxToComp(a, dimAnnA);
-            b = A{iA}(2);
-            bKet = idxToComp(b, dimAnnB);
-            term = kron(eye(dimA), kron(aKet*aKet', kron(eye(dimB), kron(bKet*bKet', eye(dimResB)))));
-            Pi = Pi + term;
-        end
-    end
-end
-
-function V = makeV(Alice, Bob, A, keyMap)
+function VPi = makeVPi(Alice, Bob, A, keyMap)
     PA = Alice.POVM;
     AnnA = Alice.Ann;
     ResA = Alice.Res;
@@ -270,14 +227,16 @@ function V = makeV(Alice, Bob, A, keyMap)
     dimResB = max(ResB) + 1;
 
     if direct_reconciliation
-        V = zeros(dimR*dimA*dimAnnA*dimResA*dimB*dimAnnB, dimA*dimAnnA*dimResA*dimB*dimAnnB);
-        for iA = 1:length(A)
+        VPi = zeros(dimR*dimA*dimAnnA*dimResA*dimB*dimAnnB, dimA*dimAnnA*dimResA*dimB*dimAnnB);
+        % Size of VPi changes depending on reconciliation method
+        for iA = 1:length(A) % Iterating through accceptable announcements
             a = A{iA}(1);
-            aKet = idxToComp(a, dimAnnA);
+            aKet = idxToComp(a, dimAnnA); % \tilde{A} register
             b = A{iA}(2);
-            bKet = idxToComp(b, dimAnnB);
+            bKet = idxToComp(b, dimAnnB); % \tilde{B} register
             b_part = kron(eye(dimB), bKet*bKet');
             for jRes = 1:dimResA
+                % The inside of this loop changes based on reconciliation method
                 alpha_a = jRes - 1;
                 alphaKet = idxToComp(alpha_a, dimResA);
                 a_part = kron(eye(dimA), kron(aKet*aKet', alphaKet*alphaKet'));
@@ -285,11 +244,11 @@ function V = makeV(Alice, Bob, A, keyMap)
                 r = g(a, alpha_a, b);
                 r_part = idxToComp(r, dimR);
                 
-                V = V + kron(r_part, kron(a_part, b_part));
+                VPi = VPi + kron(r_part, kron(a_part, b_part));
             end
         end
     else
-        V = zeros(dimR*dimA*dimAnnA*dimB*dimAnnB*dimResB, dimA*dimAnnA*dimB*dimAnnB*dimResB);
+        VPi = zeros(dimR*dimA*dimAnnA*dimB*dimAnnB*dimResB, dimA*dimAnnA*dimB*dimAnnB*dimResB);
         for iA = 1:length(A)
             a = A{iA}(1);
             aKet = idxToComp(a, dimAnnA);
@@ -304,7 +263,7 @@ function V = makeV(Alice, Bob, A, keyMap)
                 r = g(a, beta_b, b);
                 r_part = idxToComp(r, dimR);
 
-                V = V + kron(r_part, kron(a_part, b_part));
+                VPi = VPi + kron(r_part, kron(a_part, b_part));
             end
         end
     end
