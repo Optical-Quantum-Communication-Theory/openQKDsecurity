@@ -109,6 +109,11 @@ end
 function [dualY, status] = submaxproblem(GammaVector, gammaVector, gradfTranspose)
     nConstraints = length(gammaVector);
     totalDim = size(gradfTranspose, 1);
+    % check if gradfTranspose is Hermitian; if not, make it Hermitian
+    if ~ishermitian(gradfTranspose)
+        fprintf("*** Warning: gradfTranspose is not hermitian. Extracting hermitian portion. ****\n")
+        gradfTranspose = (gradfTranspose+gradfTranspose')/2;
+    end
    
     cvx_begin sdp
         variable dualY(nConstraints) 
