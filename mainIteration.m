@@ -109,6 +109,10 @@ function results=mainIteration(protocolDescription,channelModel,leakageEC,parame
         %also save the current parameter set for reference (1-D cell array)
         results(i).debugInfo.current_parameters = p_full;
         results(i).debugInfo.names = parameters.names;
+        % and if we were optimizing, save the optimization result in struct
+        if(isOptimizing)
+            results(i).p_optimal = p_optimal;
+        end
     end
     
     
