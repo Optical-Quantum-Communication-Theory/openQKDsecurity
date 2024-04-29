@@ -1,0 +1,21 @@
+# ignore .mat files
+*.mat
+# ignore figures
+*.fig
+*.DS_Store
+# ignore folder for comparision to old software
+
+
+# Default good practice MATLAB ignores:
+# Windows default autosave extension
+*.asv
+
+# OSX / *nix default autosave extension
+*.m~
+
+# Compiled MEX binaries (all platforms)
+*.mex*
+
+# Packaged app and toolbox files
+*.mlappinstall
+*.mltbx
