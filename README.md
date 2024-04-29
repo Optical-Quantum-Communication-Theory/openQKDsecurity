@@ -1,4 +1,4 @@
-# OpenQKDSecurity Platform
+# OpenQKDSecurity Platform 
 
 OpenQKDSecurity is a MATLAB-based software platform for numerical key rate calculation of Quantum Key Distribution (QKD) protocols.
 
