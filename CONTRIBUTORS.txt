@@ -1,0 +1,34 @@
+Scientific Framework and Software Concept Development:
+Patrick Coles
+Norbert Lütkenhaus 
+Jie Lin
+Eric Metodiev
+Ian George
+Nicky Kai Hong Li
+Kun Fang
+Max Chemtov
+Yanbao Zhang
+Christopher Böhm
+Adam Winick
+Thomas van Himbeeck
+John Burniston
+
+Open Source Software (V2.0)
+John Burniston (Lead Developer)
+Scott Johnstun
+Lars Kamin
+Shlok Nahar
+Devashish Tupkary
+Shihong Pan
+Zhiyao Michael Wang
+Aodhan Corrigan
+Florian Kanitschar
+
+Open Source Software (V1.0)
+Wenyuan Wang (Lead Developer)
+Jie Lin
+Ian George
+Shouzhen (Bailey) Gu
+Natansh Mathur
+Twesh Upadhyaya
+Adam Winick
