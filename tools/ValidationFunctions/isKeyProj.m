@@ -12,6 +12,11 @@ if ~iscell(keyProj)
     value = false;
     return
 end
+if isempty(keyProj)
+    value = false;
+    return
+end
+
 if ~isCellOf(keyProj,"double")
     value = false;
     return
@@ -21,19 +26,21 @@ end
 %then work to harder checks like if they're all hermitian with postitive
 %eigenvalues.
 
-%All must be the same size
-try
-    cell2mat(keyProj);
-catch
-    value = false;
-    return;
-end
 
-%projectors are square
+%projectors are square matrices
 projSize = size(keyProj{1});
 if numel(projSize)>2 || projSize(1) ~= projSize(2)
     value = false;
     return
+end
+
+%all projectors are the same size as the first element (hense all are also
+%square).
+for index = 1:numel(keyProj)
+    if ~isequal(projSize,size(keyProj{index}))
+        value = false;
+        return
+    end
 end
 
 %projectors sum to identity
@@ -42,12 +49,12 @@ for index= 1:numel(keyProj)
     matSum = matSum + keyProj{index};
 end
 
-if ~isequal(matSum,eye(projSize))
+if ~all(ismembertol(matSum,eye(projSize),"DataScale",1))
     value = false;
     return
 end
 
-%Hermitian (This may not be that stable)
+%Hermitian
 if ~allCells(keyProj,@ishermitian)
     value = false;
     return

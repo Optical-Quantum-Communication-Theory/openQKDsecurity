@@ -55,14 +55,10 @@ function [relEntLowerBound,modParser] = FW2StepSolver(params,options,debugInfo)
 % * verboseLevel (global option): See makeGlobalOptionsParser for details.
 % * maxIter (20): maximum number of Frank Wolfe iteration steps taken to
 %   minimize the relative entropy.
-% * maxGapCriteria (true): Controls the method to determine when the Frank
-%   Wolfe algorithm should stop. For maxGapCriteria = true, the gap is
-%   determined by the size of the step in the direction of the gradient of
-%   the relative entropy, scaled by the length of the gradient. For
-%   maxGapCriteria = false, the gap is given by the difference in relative
-%   entropy between each step.
-% * maxGap (1e-5): non-negative value for the maximum gap criteria given
-%   above.
+% * maxGap (1e-6): Exit condition for the Frank Wolfe algithm. When the
+%   relative gap between the current and previous iteration is small
+%   enough, the Frank wolfe algorithm exits and returns the current point.
+%   The gap must be a postive scalar.
 % * linearSearchPrecision (1e-20): Precision the fminbnd tries to achieve
 %   when searching along the line between the current point and the points
 %   along the gradient line. See fminbnd and optimset for more details.
@@ -118,7 +114,7 @@ optionsParser = makeGlobalOptionsParser(mfilename);
 
 optionsParser.addOptionalParam("maxIter",20,@mustBeInteger);
 optionsParser.addAdditionalConstraint(@(x) x>0, "maxIter");
-optionsParser.addOptionalParam("maxGap",1e-5,@(x) x>0);
+optionsParser.addOptionalParam("maxGap",1e-6,@(x) x>0);
 optionsParser.addOptionalParam("linearSearchPrecision",1e-20,@(x) x>0);
 optionsParser.addOptionalParam("linearSearchMinStep",1e-3,@(x) 0<=x && x<=1);
 optionsParser.addOptionalParam("linearConstraintTolerance",1e-10,@(x) x>0);

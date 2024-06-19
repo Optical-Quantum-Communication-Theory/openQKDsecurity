@@ -150,12 +150,11 @@ if options.blockDiagonal
     P = options.blockP;
     newDims = options.newDims.';    
 
-    rhoStrings = convertStringsToChars(compose("rho%1d(%d,%d)",...
-        [1:numel(newDims)].',newDims,newDims));
+    rhoStrings = compose("rho%1d(%d,%d)",(1:numel(newDims)).',newDims,newDims);
     % CVX MUST generates variables in this work space. We have to do each
     % separately.
     for index = 1:numel(rhoStrings)
-        variable(rhoStrings{index},'hermitian','semidefinite')
+        variable(convertStringsToChars(rhoStrings(index)),'hermitian','semidefinite')
     end
     % Get a single cell array to capture those variables.
     rhoBlocks = eval("{"+strjoin(compose("rho%d",1:numel(newDims)),",")+"}");
@@ -221,12 +220,11 @@ if options.blockDiagonal
     P = options.blockP;
     newDims = options.newDims.';    
 
-    deltaRhoStrings = convertStringsToChars(compose("deltaRho%1d(%d,%d)",...
-        [1:numel(newDims)].',newDims,newDims));
+    deltaRhoStrings = compose("deltaRho%1d(%d,%d)",(1:numel(newDims)).',newDims,newDims);
     % CVX MUST generates variables in this work space. We have to do each
     % separately.
     for index = 1:numel(deltaRhoStrings)
-        variable(deltaRhoStrings{index},'hermitian') %NOT semidefinite
+        variable(convertStringsToChars(deltaRhoStrings(index)),'hermitian') %NOT semidefinite
     end
     % Get a single cell array to capture those variables.
     deltaRhoBlocks = eval("{"+strjoin(compose("deltaRho%d",1:numel(newDims)),",")+"}");
