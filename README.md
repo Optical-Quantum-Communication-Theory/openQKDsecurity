@@ -39,7 +39,7 @@ Our software requires *at least version 2020b* for full functionality, but insta
 Our software has the following dependencies for its default settings:
 
 - [CVX](https://cvxr.com/cvx/download/) v2.2, a library for solving convex optimization problems in MATLAB.
-- [QETLAB](https://github.com/nathanieljohnston/QETLAB) *above* v0.9, a MATLAB toolbox for operations involving quantum channels and entanglement. Note that you cannot use the version from their website as it has a bugs associated with implementing Choi matrices. *You must use their latest copy on Github*. At the time of writing, this means downloading their code with the green "code" button and *not* the v0.9 release.
+- [QETLAB](https://github.com/nathanieljohnston/QETLAB) *above* v0.9, a MATLAB toolbox for operations involving quantum channels and entanglement. Note that you cannot use the version from their website as it has a bugs associated with implementing Choi matrices. *You must use their latest copy on GitHub*. At the time of writing, this means downloading their code with the green "code" button and *not* the v0.9 release.
 - [ZGNQKD](https://www.math.uwaterloo.ca/~hwolkowi/henry/reports/ZGNQKDmainsolverUSEDforPUBLCNJuly31/) solver (optional), an alternative to our Frank-Wolfe solver for quantum relative entropy. Currently, it only supports equality constraints. Download the zip and the "Solver" folder and sub-folders to your path.
 - [MOSEK](https://www.mosek.com/) (optional), a more advanced semidefinite programming (SDP) solver than the default (SDPT3) used in CVX. Note that the MOSEK solver can be downloaded together with CVX, but requires a separate license to use. See [this page](https://cvxr.com/cvx/doc/mosek.html) for more information.
 
