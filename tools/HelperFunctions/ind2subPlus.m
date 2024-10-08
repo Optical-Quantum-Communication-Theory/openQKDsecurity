@@ -11,6 +11,15 @@ function vec = ind2subPlus(vecSize,index)
 %
 % See also ind2sub, sub2ind, sub2indPlus
 vec = cell(size(vecSize));
+if isscalar(vecSize)
+    vecSize = [vecSize,1];
+end
 [vec{:}] = ind2sub(vecSize,index);
 vec = cell2mat(vec);
 end
+
+% original version
+% vec = cell(size(vecSize));
+% [vec{:}] = ind2sub(vecSize,index);
+% vec = cell2mat(vec);
+% end

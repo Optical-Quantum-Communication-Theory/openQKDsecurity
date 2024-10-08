@@ -20,7 +20,7 @@ end
 [perturbation,safeCutOff] = computePerturbationEpsilon(rho, krausOps, keyProj);
 debugInfo.storeInfo("perturbationValue",perturbation);
 
-% 2. Calculate f_epsilon_p(rho) and gradftranspose of that
+% 2. Calculate f_epsilon_p(rho) and its gradient at the same point.
 fval = primalfep(perturbation, rho, keyProj, krausOps,safeCutOff);
 debugInfo.storeInfo("relEntStep2Linearization",fval/log(2));
 
@@ -37,16 +37,12 @@ debugInfo.storeInfo("dualSolution",dualSolution/log(2));
 % compute key rate lower bound from the result of step 2
 beta = dualSolution + fval - real(trace(gradf*rho)); %real() deals with small numerical instability
 
-% We compute the penalty zetaEp due to pertubation
-if perturbation == 0
-    zetaEp = 0; %limit as perturbation -> 0
-else
-    dimOut = size(krausOps{1},1);
-    zetaEp = 2 * 2*perturbation*(dimOut-1)/dimOut...
-        *log(dimOut^2/(2*perturbation*(dimOut-1)));
-end
+% Because f(maxMixed) = 0, we can use convex arguments to get
+% f_\epsilon(\rho)/(1-\epsilon) \leq f(\rho)$. This is way cleaner than
+% other perturbation bounds
 
-lowerBound = beta - zetaEp;
+
+lowerBound = beta/(1-perturbation);
 end
 
 %% Other Functions

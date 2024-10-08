@@ -157,7 +157,8 @@ if options.blockDiagonal
         variable(convertStringsToChars(rhoStrings(index)),'hermitian','semidefinite')
     end
     % Get a single cell array to capture those variables.
-    rhoBlocks = eval("{"+strjoin(compose("rho%d",1:numel(newDims)),",")+"}");
+    rhoBlocksString = "{"+strjoin(compose("rho%d",1:numel(newDims)),",")+"}";
+    rhoBlocks = eval(rhoBlocksString);
     
 
     % there is a bug in cvx's blkdiag override that messes up some times.
@@ -192,6 +193,7 @@ cvx_end
 % reconstruct rho from blocks incase it didn't get filled in by CVX
 if options.blockDiagonal
     rho = zeros(dim);
+    rhoBlocks = eval(rhoBlocksString);
     rho = directSumWorkArround(rho, rhoBlocks);
     rho = P'*rho*P;
 end
@@ -227,7 +229,8 @@ if options.blockDiagonal
         variable(convertStringsToChars(deltaRhoStrings(index)),'hermitian') %NOT semidefinite
     end
     % Get a single cell array to capture those variables.
-    deltaRhoBlocks = eval("{"+strjoin(compose("deltaRho%d",1:numel(newDims)),",")+"}");
+    deltaRhoBlocksString = "{"+strjoin(compose("deltaRho%d",1:numel(newDims)),",")+"}";
+    deltaRhoBlocks = eval(deltaRhoBlocksString);
     
 
     % there is a bug in cvx's blkdiag override that messes up some times.
@@ -255,6 +258,7 @@ cvx_end
 % reconstruct rho from blocks incase it didn't get filled in by CVX
 if options.blockDiagonal
     deltaRho = zeros(dim);
+    deltaRhoBlocks = eval(deltaRhoBlocksString);
     deltaRho = directSumWorkArround(deltaRho, deltaRhoBlocks);
     deltaRho = P'*deltaRho*P;
 end

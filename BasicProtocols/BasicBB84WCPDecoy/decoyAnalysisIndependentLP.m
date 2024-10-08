@@ -1,18 +1,20 @@
 function [conExpL,conExpU] = decoyAnalysisIndependentLP(conExp,decoys,options)
 % decoyAnalysisIndependentLP: A decoy analysis module for assymptotic data.
 % Returns the upper and lower bounds on the expectations condition on
-% single photons being sent. This function assumes that the source uses a
-% weak coherent pulsed laser to generate signals.
+% single photons being sent and signal choice. This function assumes that
+% the source uses a weak coherent pulsed laser to generate signals.
 %
 % Input:
 % * conExp: A table of expectation values of Bob's measurement result
 %   (columns) conditioned on Alice's measurement result (rows) and decoy
 %   intensity used (pages deep / third array dimension). Each row must be
-%   non-negative and sum to 1. Values of conditioned on intensity.
+%   non-negative and sum to 1 (ie. values are conditioned on intensity and
+%   signal sent by Alice). The first page is the key generating intensity.
 % * decoys: vector of intensities used for each page in conExp. Ordered by
 %   the page number. The intensities must be non-negative. Warning: an
 %   intensity of 0 is rather unstabe in numerical decoy analysis. We
 %   recommend you try something slightly above.
+%
 % Name-value pair options:
 % * decoyTolerance (1e-12): A small extra tolerance term to loosen the
 %   linear constraints by when solving.
@@ -20,10 +22,18 @@ function [conExpL,conExpU] = decoyAnalysisIndependentLP(conExp,decoys,options)
 % * decoyPrecision ("high"): The precision you want CVX to use.
 % * photonCutOff (10): The photon number cut off you want the decoy
 %   analysis to solve up to. 
-% * forceSep (false): For each expectation value, the single photon lower
+% * forceSep (true): For each expectation value, the single photon lower
 %   bound shouldn't be higher than the upper bound. Sometimes CVX does not
 %   satisfy this trivial bound. If set to true, an extra constraint will be
 %   added to force the single photon components to respect the bound.
+%
+% Output:
+% * conExpL: Lower bound on the probability of Bob's measurment outcomes
+%   (rows) conditioned on Alice's signal choice (columns) and single photon
+%   sent.
+% * conExpU: Upper bound on the probability of Bob's measurment outcomes
+%   (rows) conditioned on Alice's signal choice (columns) and single photon
+%   sent.
 %   
 %   Reviewed by Devashish Tupkary 2023/09/23
 arguments
@@ -33,7 +43,7 @@ arguments
     options.decoySolver (1,1) string = "SDPT3";
     options.decoyPrecision (1,1) string = "high";
     options.photonCutOff (1,1) double {mustBeInteger,mustBePositive} = 10;
-    options.forceSep (1,1) logical = false;
+    options.forceSep (1,1) logical = true;
 end
 
 
@@ -114,17 +124,18 @@ cvx_begin quiet
     cvx_solver(convertStringsToChars(decoySolver));
     cvx_precision(convertStringsToChars(decoyPrecision));
     
-    variables yieldsL(numPhotons,numOutcomes) yieldsU(numPhotons,numOutcomes)
+    yieldsL = variable('yieldsL(numPhotons,numOutcomes)','nonnegative');
+    yieldsU = variable('yieldsU(numPhotons,numOutcomes)','nonnegative');
 
     minimize(sum(yieldsL(2,:) - yieldsU(2,:))) % 2 corresponds to single-photon yields
     subject to
     
-    0 <= yieldsL <= 1;
+    yieldsL <= 1;
     
     poissonCache*yieldsL <= conExp                +decoyTolerance;
     poissonCache*yieldsL >= conExp -probRemaining -decoyTolerance;
 
-    0 <= yieldsU <= 1;
+    yieldsU <= 1;
     
     poissonCache*yieldsU <= conExp                +decoyTolerance;
     poissonCache*yieldsU >= conExp -probRemaining -decoyTolerance;
@@ -141,8 +152,10 @@ if strcmp(cvx_status, 'Infeasible') || strcmp(cvx_status, 'Failed')
     throwAsCaller(exception);
 end
 
-conExpLowerBound = yieldsL(2,:);
-conExpUpperBound = yieldsU(2,:);
+%read out single photons from the yields and clip between 0 and 1 to remove
+%numerical errors.
+conExpLowerBound = min(max(yieldsL(2,:),0),1);
+conExpUpperBound = min(max(yieldsU(2,:),0),1);
 
 end
 

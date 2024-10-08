@@ -15,12 +15,12 @@ function Dfval = primalDfep(perturbation, rho, keyProj, krausOperators,safeCutOf
 % * Dfval: The value of the gradient at the given value of rho. This uses
 %   numerator convention.
 %
-% See also primalDf, primalfep, FW2StepSolver, perturbationChannelEpsilon
+% See also primalDf, primalfep, FW2StepSolver
 arguments
     %minimial checks just to make sure cells are formatted in the correct
     %orientation.
-    perturbation (1,1) double
-    rho (:,:) double {mustBeHermitian,mustFollowPerturbationTheorem(perturbation,rho)}
+    perturbation (1,1) double {mustBeInRange(perturbation,0,1)}
+    rho (:,:) double {mustBeHermitian}
     keyProj (:,1) cell %checks are too complex for this.
     krausOperators (:,1) cell %checks are too complex for this.
     safeCutOff (1,1) double {mustBePositive} = 1e-14;

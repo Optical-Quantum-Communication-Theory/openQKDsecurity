@@ -68,7 +68,9 @@ function [relEntLowerBound,modParser] = FW2StepSolver(params,options,debugInfo)
 %   more details (the second argument, x1, in the function).
 % * linearConstraintTolerance (1e-10): constraint tolerance on the
 %   equalityConstraints, inequalityConstraints, vectorOneNormConstraints
-%   and matrixOneNormConstraints. A bit broader than the name suggests.
+%   and matrixOneNormConstraints for step 1 of the solver. This is to help
+%   the solver find feasible points during step 1 and play no role in step
+%   2.
 % * initMethod (1): Integer selected from {1,2,3}. For the Frank Wolfe
 %   algorithm, the initial point must satisfy the constraints. This selects
 %   which technique is used, from 3 choices:
