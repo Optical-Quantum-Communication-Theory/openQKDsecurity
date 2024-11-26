@@ -23,6 +23,7 @@ Shihong Pan
 Zhiyao Michael Wang
 Aodhan Corrigan
 Florian Kanitschar
+Laura Gracie
 
 Open Source Software (V1.0)
 Wenyuan Wang (Lead Developer)
