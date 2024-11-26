@@ -114,14 +114,28 @@ end
 %start with the global parser and add on the extra options
 optionsParser = makeGlobalOptionsParser(mfilename);
 
-optionsParser.addOptionalParam("maxIter",20,@mustBeInteger);
-optionsParser.addAdditionalConstraint(@(x) x>0, "maxIter");
-optionsParser.addOptionalParam("maxGap",1e-6,@(x) x>0);
-optionsParser.addOptionalParam("linearSearchPrecision",1e-20,@(x) x>0);
-optionsParser.addOptionalParam("linearSearchMinStep",1e-3,@(x) 0<=x && x<=1);
-optionsParser.addOptionalParam("linearConstraintTolerance",1e-10,@(x) x>0);
-optionsParser.addOptionalParam("initMethod",1,@(x) mustBeMember(x,[1,2,3]));
-optionsParser.addOptionalParam("blockDiagonal", false, @(x) mustBeMember(x, [true, false]));
+optionsParser.addOptionalParam("maxIter",20,...
+    @isscalar,...
+    @mustBePositive,...
+    @mustBeInteger);
+optionsParser.addOptionalParam("maxGap",1e-6,...
+    @isscalar,...
+    @mustBePositive);
+optionsParser.addOptionalParam("linearSearchPrecision",1e-20, ...
+    @isscalar, ...
+    @mustBePositive);
+optionsParser.addOptionalParam("linearSearchMinStep",1e-3, ...
+    @isscalar, ...
+    @(x) mustBeInRange(x,0,1));
+optionsParser.addOptionalParam("linearConstraintTolerance",1e-10, ...
+    @isscalar, ...
+    @mustBePositive);
+optionsParser.addOptionalParam("initMethod",1, ...
+    @isscalar, ...
+    @(x) mustBeMember(x,[1,2,3]));
+optionsParser.addOptionalParam("blockDiagonal", false, ...
+    @isscalar, ...
+    @(x) mustBeMember(x, [true, false]));
 optionsParser.parse(options);
 
 options = optionsParser.Results;
@@ -131,10 +145,8 @@ options = optionsParser.Results;
 modParser = moduleParser(mfilename);
 
 % kraus operators for G map and key projection operators for Z map
-modParser.addRequiredParam("krausOps",@mustBeNonempty);
-modParser.addAdditionalConstraint(@isCPTNIKrausOps,"krausOps");
-modParser.addRequiredParam("keyProj",@mustBeNonempty);
-modParser.addAdditionalConstraint(@mustBeAKeyProj,"keyProj");
+modParser.addRequiredParam("krausOps",@isCPTNIKrausOps);
+modParser.addRequiredParam("keyProj",@mustBeAKeyProj);
 
 %same dimension for matrix multiplication
 modParser.addAdditionalConstraint(@(x,y)size(x{1},1) == size(y{1},2),["krausOps","keyProj"])

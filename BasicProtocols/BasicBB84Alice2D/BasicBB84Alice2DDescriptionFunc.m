@@ -53,7 +53,9 @@ options = optionsParser.Results;
 
 %% module parser
 modParser = moduleParser(mfilename);
-modParser.addRequiredParam("pz",@(x) mustBeInRange(x,0,1));
+modParser.addRequiredParam("pz",...
+    @isscalar,...
+    @(x) mustBeInRange(x,0,1));
 modParser.parse(params)
 params = modParser.Results;
 

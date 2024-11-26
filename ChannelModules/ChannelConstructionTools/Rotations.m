@@ -40,7 +40,8 @@ classdef Rotations
             if ~options.angleOnBlochSphere
                 rotationAngle = 2*rotationAngle;
             end
-            transMat = Rotations.rotMatrix(rotationAngle,[cos(thetaPolar),sin(thetaPolar).*cos(phiAzimuth),sin(thetaPolar).*sin(phiAzimuth)]);
+            transMat = Rotations.rotMatrix(rotationAngle,...
+                [cos(thetaPolar),sin(thetaPolar).*cos(phiAzimuth),sin(thetaPolar).*sin(phiAzimuth)]);
         end
 
         function transMat = rotateStateZXY(rotationAngle,axisZXY,options)
@@ -73,6 +74,43 @@ classdef Rotations
                 rotationAngle = 2*rotationAngle;
             end
             transMat = Rotations.rotMatrix(rotationAngle,axisZXY);
+        end
+
+        function transMat = rotateStateXYZ(rotationAngle,axisXYZ,options)
+            % This behaves the same as Rotations.rotateStateZXY but with
+            % the a permuted axis order.
+            %
+            % A function that constructs the unitary transition matrix for
+            % polarization coherent states for a rotation about an
+            % arbitrary axis. The axis is specified by its  X (DA), Y (RL),
+            % and Z (HV) coordinates in that order. By default, the angle
+            % of rotation is based on rotation around the bloch sphere
+            % (period of 4pi) and not a physical rotation such as a
+            % physically rotating a device (period of 2pi).
+            %
+            %
+            % Input:
+            % * rotationAngle: Angle rotated by around the bloch sphere
+            %   (period of 4pi).
+            % * axisXYZ: Coordinates of the axis of rotation ordered  X
+            %   (DA), Y(RL), Z (HV). The length of the vector must be 1 up
+            %   to a small numerical tolerance.
+            % Name-value arguments:
+            % * angleOnBlochSphere: Default true. When true, the angle of
+            %   rotation is based on rotation around the Bloch sphere
+            %   (period of 4pi). When false, the rotation is viewed as a
+            %   physical rotation (period of 2pi) such as physically
+            %   rotating a device.
+            %
+            % See also Rotations.rotateStateZXY
+            arguments
+                rotationAngle (1,1) double
+                axisXYZ (3,1) double
+                options.angleOnBlochSphere (1,1) logical = true;
+            end
+            axisZXY = circshift(axisXYZ,1);
+            transMat = Rotations.rotateStateZXY(rotationAngle,axisZXY,...
+                "angleOnBlochSphere",options.angleOnBlochSphere);
         end
     end
 

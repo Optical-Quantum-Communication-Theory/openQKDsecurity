@@ -6,24 +6,23 @@ classdef moduleParser < handle
     % searches for the required and optional fields in an input structure
     % and extracts the required and optional fields.
     %
-    % TODO:
-    % * Make sure user can't set a default or pass an input of class
-    %   RequiredInput. (worked out for default values)
-    % * Make it possible to send in multiple validation functions at once.
-    %   How does inputParser do it?
+    % TODO: With the rewrite, using the inputParser might not be needed.
+    % Look into a fully custom solution.
     %
     % See also INPUTPARSER
 
     properties (SetAccess = protected, GetAccess = protected)
-        Parser (1,1) inputParser%underling matlab InputParser
-        AdditionalConstraints (:,1) cell%storing extra constraints as a cell of struct with validation function and inputs.
+        %underling matlab InputParser
+        Parser (1,1) inputParser
+        %storing extra constraints as a struct array with validation function and inputs.
+        AdditionalConstraints (:,1) struct = struct("validationFunc",{},"paramNames",{});
     end
     properties (Dependent = true, SetAccess = protected)
         Results % The Results structure from the underlying inputParser
         UsingDefaults % The UsingDefaults cell array from the underlying inputParser
         Unmatched % The Unmatched structure from the underlying inputParser
         Parameters % The Parameters cell array from the underlying inputParser
-        FunctionName %The Functionname string from the underlying inputParser. Used to give a meaningful name in error messages.
+        FunctionName %The FunctionName string from the underlying inputParser. Used to give a meaningful name in error messages.
     end
     properties (Constant = true, GetAccess = protected)
         RequiredFlag = RequiredInput(); %hidden class used to flag inputs as required.
@@ -44,42 +43,57 @@ classdef moduleParser < handle
             obj.Parser.PartialMatching = false;
             obj.Parser.StructExpand = true;
             obj.Parser.KeepUnmatched = true;
-
-            obj.AdditionalConstraints = {};
         end
 
         function addRequiredParam(obj,paramName,validationFunc)
             % addRequiredParam - adds a required input and an optional
             % validation function.
-            % paramName: string for the name of the parameter (exact match)
-            % validationFunc: single input function that either returns a logical (true
-            % for pass, false for fail) or throws an error on failure.
+            %
+            % Inputs:
+            % * paramName: string for the name of the parameter (exact
+            %   match)
+            % Repeating Inputs:
+            % * validationFunc: single input function that either returns a
+            %   logical (true for pass, false for fail) or has no outputs
+            %   and throws an error on failure.
             arguments
                 obj (1,1) moduleParser
-                paramName (1,1) string
-                validationFunc  (1,1) function_handle = @(x) true;
+                paramName (1,1) string {mustBeValidVariableName}
             end
-            obj.Parser.addParameter(paramName,obj.RequiredFlag,validationFunc);
+            arguments (Repeating)
+                validationFunc (1,1) function_handle;
+            end
+
+            obj.Parser.addParameter(paramName,obj.RequiredFlag);
+
+            cellfun(@(x)obj.addAdditionalConstraint(x,paramName),validationFunc);
         end
 
         function addOptionalParam(obj,paramName,defaultVal,validationFunc)
             % addOptionalParam - adds an optional input  with a default
             % value when the MODULEPARSER doesn't find the input listed. An
             % optional validation function can also be given.
-            % paramName: string for the name of the parameter (exact
-            % match).
-            % defaultVal: default value taken when the MODULEPARSER doesn't
-            % find the input listed.
-            % validationFunc: single input function that either returns a
-            % logical (true for pass, false for fail) or throws an error on
-            % failure.
+            %
+            % Inputs:
+            % * paramName: string for the name of the parameter (exact
+            %   match).
+            % * defaultVal: default value taken when the MODULEPARSER
+            %  doesn't find the input listed.
+            % Repeating Inputs:
+            % * validationFunc: single input function that either returns a
+            %   logical (true for pass, false for fail) or has no outputs
+            %   and throws an error on failure.
             arguments
                 obj (1,1) moduleParser
-                paramName (1,1) string
+                paramName (1,1) string {mustBeValidVariableName}
                 defaultVal {mustNotBeRequiredInputFlag(obj,defaultVal)}
-                validationFunc  (1,1) function_handle = @(x) true;
             end
-            obj.Parser.addParameter(paramName,defaultVal,validationFunc)
+            arguments (Repeating)
+                validationFunc  (1,1) function_handle
+            end
+            obj.Parser.addParameter(paramName,defaultVal)
+
+            cellfun(@(x)obj.addAdditionalConstraint(x,paramName),validationFunc);
         end
 
         function addAdditionalConstraint(obj,validationFunc,paramNames)
@@ -88,34 +102,45 @@ classdef moduleParser < handle
             % validation functions, this one can have multiple inputs,
             % which must be specified in order with a 1D cell array of
             % parameter names.
-            % validationFunc: multi input function that either returns a
-            % logical (true for pass, false for fail) or throws an error on
-            % failure.
-            % paramNames: nonempty 1D cell array of strings that list in
-            % order the inputs to the validation function. Each string must
-            % already be a property known to the MODULEPARSER.
+            %
+            % Inputs:
+            % * validationFunc: A multi-input function that either returns
+            %   a logical (true for pass, false for fail) or has no outputs
+            %   and throws an error on failure.
+            % * paramNames: vector of strings that list in order the inputs
+            %   to the validation function. Each string must already be a
+            %   parameter known to the MODULEPARSER.
             arguments
                 obj (1,1) moduleParser
                 validationFunc (1,1) function_handle
-                paramNames (:,1) string {mustBeProperty(obj,paramNames), mustBeNonempty(paramNames)}
+                paramNames (:,1) string {mustBeNonempty, mustBeParameter(obj,paramNames)}
             end
 
-            obj.AdditionalConstraints = [obj.AdditionalConstraints;...
-                struct("validationFunc",validationFunc,"paramNames",paramNames)];
+            obj.AdditionalConstraints(end+1) = struct(...
+                "validationFunc",validationFunc,...
+                "paramNames",paramNames);
         end
 
         %% parsing function
         function parse(obj, inputParams,options)
-            % parse - Calls the underlying input parser on the given
-            % structure. The MODULEPARSER will look for matches based on
-            % the field names then verify their given values. After that
-            % step, the MODULEPARSER will then verify all additional
-            % constraints. Note, there is a bit of a hack to ensure that
-            % anonymous function handles will not crash the system if they
-            % don't return an output. This was the best way I could think
-            % of doing it without running the validation function twice.
-            % inputParams: structure with field names matching the
-            % parameter names specified by the MODULEPARSER.
+            % parse - Parses the input struct with the module parser based
+            % on the input's name value pairs. The parser will check that
+            % all required parameters are present and assign default values
+            % to unsuplied optionl parameters. After that, all validation
+            % functions are run on their respective inputs. If the parsing
+            % is successful, the Results, UsingDefaults, and Unmatched
+            % properties will be populated.
+            %
+            % If a required input is not present, then a
+            % "moduleParser:MissingRequiredInput" exception will be raised.
+            % If a parameter (or parameters) fail an input validation
+            % function, a "moduleParser:FailedValidation" exception will be
+            % raised. If a validaiton function does not produces an array
+            % convertible to logical values, nor is a validation function
+            % (no outputs and throws an error on invalid inputs), then a
+            % "moduleParser:BadValidationFunction" exception will be
+            % raised.
+            %
             %
             % inputs:
             % * obj: moduleParser to use.
@@ -132,76 +157,160 @@ classdef moduleParser < handle
                 options.warnUnusedParams (1,1) logical = false;
             end
 
+
+            % all the types of errors that can occur.
+            errIDFailed = "moduleParser:FailedValidation";
+            errMsgFailed = "Arguments for %s, with inputs '%s'; " + ...
+                "did not satisfy validation function %s.";
+
+            errIDBadValidation = "moduleParser:BadValidationFunction";
+            errMsgBadValidation = "While parsing the arguments for %s, the validation " + ...
+                "function, '%s', for inputs '%s', did not return an array " + ...
+                "convertible to logical values, nor was it a function " + ...
+                "that returned no values and throws an error on failure.";
+
+            errIDMissingRequired = "moduleParser:MissingRequiredInput";
+            errMsgMissingRequired = "%s is a required input of %s";
+
             %parse parser
             obj.Parser.parse(inputParams);
 
-            defaultsList = obj.Parser.UsingDefaults;
+            defaultsList = obj.UsingDefaults;
 
-            %Now check to see if any default arguments are required inputs
+            %% missing defaults
             for index = 1:numel(defaultsList)
                 fieldName = defaultsList{index};
-                if isequal(obj.Parser.Results.(fieldName),obj.RequiredFlag)
-                    exception = MException("moduleParser:inputError",...
-                        "%s is a required input of %s",fieldName,obj.Parser.FunctionName);
-                    throwAsCaller(exception);
+                if isequal(obj.Results.(fieldName),obj.RequiredFlag)
+                    throw(MException(errIDMissingRequired,errMsgMissingRequired,...
+                        fieldName,obj.FunctionName));
                 end
             end
 
-            %now check the combination validators
+            %% validation functions
+
             for index = 1:numel(obj.AdditionalConstraints)
-                validationFunc = obj.AdditionalConstraints{index}.validationFunc;
-                paramNames = obj.AdditionalConstraints{index}.paramNames;
 
-                paramValues = cellfun(@(x) obj.Parser.Results.(x),paramNames,"UniformOutput",false);
+                validationFunc = obj.AdditionalConstraints(index).validationFunc;
+                paramNames = obj.AdditionalConstraints(index).paramNames;
 
-                %check if we have 1 or 0 outputs (ei, use logical output or
-                %trigger internal error message).
+                % grab all the values for the for these parameters
+                paramValues = cellfun(@(x) obj.Results.(x),paramNames,"UniformOutput",false);
 
+                % try and use the validation function with outputs
+                try
+                    validationResult = validationFunc(paramValues{:});
+                catch err
+                    % check if we needed to use no input arguments, like
+                    % with normal Matlab validation functions.
+                    if isequal(err.identifier,"MATLAB:TooManyOutputs")
+                        % Likely problem is we need no outputs.
+                        try
+                            validationFunc(paramValues{:});
+                            validationResult = true;
 
+                        catch err
+                            % The validation threw an error, most likely
+                            % meaning that the parameters failed
+                            % validation.
+                            newErr = MException(errIDFailed,errMsgFailed, ...
+                                obj.FunctionName, ...
+                                strjoin(paramNames,"', '"), ...
+                                func2str(validationFunc));
 
-                %matlab is a pain. If i get an anonymous function, then it
-                %can't tell you how many outputs it expects. So it will try
-                %1 and then completely fail if the underlying function had
-                %no outputs. Because I want functions that either throw
-                %errors or output a logical, I have to first run the
-                %function with no ouputs specified, then if that didn't
-                %throw an error, run it AGAIN to now get the logical return
-                %back. What a pain.
-                numOut = nargout(validationFunc);
-
-                if numOut == 0
-                    validationFunc(paramValues{:});
-                elseif numOut >= 1 || numOut < -1
-                    if ~validationFunc(paramValues{:})
-                        % find a good way to tell the user which conditional
-                        % constraint was not satisfied.
-                        exception = MException("moduleParser:inputError",...
-                            "Arguments for %s, with inputs '%s'; did not satisfy additional constraint %s.",...
-                            obj.Parser.FunctionName,strjoin(paramNames,"', '"),func2str(validationFunc));
-                        throwAsCaller(exception);
-                    end
-                else
-                    true; %hack begins
-                    validationFunc(paramValues{:});
-                    result = ans; %hack ends
-                    if ~result
-                        % find a good way to tell the user which conditional
-                        % constraint was not satisfied.
-                        exception = MException("moduleParser:inputError",...
-                            "Arguments for %s, with inputs '%s'; did not satisfy additional constraint %s.",...
-                            obj.Parser.FunctionName,strjoin(paramNames,"', '"),func2str(validationFunc));
-                        throwAsCaller(exception);
+                            newErr = addCause(newErr,err);
+                            throw(newErr);
+                        end
+                    else
+                        % Error is likely some ill-formed valiation
+                        % function.
+                        newErr = MException(errIDBadValidation,errMsgBadValidation,...
+                            obj.FunctionName, ...
+                            strjoin(paramNames,"', '"), ...
+                            func2str(validationFunc));
+                        newErr = addCause(newErr,err);
+                        newErr.throw();
                     end
                 end
+
+                try
+                    % All outputs must be true to pass.
+                    validationResults = all(logical(validationResult),"all");
+                catch err
+                    if isequal(err.identifier, "MATLAB:invalidConversion")
+                        % The valdation function couldn't convert the
+                        % output to logical values. The validation
+                        % funcition is ill-formed.
+                        newErr = MException(errIDBadValidation, errMsgBadValidation,...
+                            obj.FunctionName, ...
+                            strjoin(paramNames,"', '"), ...
+                            func2str(validationFunc));
+                        newErr = addCause(newErr,err);
+                        throw(newErr);
+
+                    else
+                        % I don't know anything that could trigger this,
+                        % but if it does it's likely my fault.
+                        err.rethrow();
+                    end
+                end
+
+                if ~validationResults
+                    % The validation function failed.
+                    throw(MException(errIDFailed,errMsgFailed, ...
+                        obj.FunctionName, ...
+                        strjoin(paramNames,"', '"), ...
+                        func2str(validationFunc)));
+                end
+
+                % baseErrorID = "moduleParser:inputError";
+                % invalidConstraintMsg = "Arguments for %s, with inputs '%s'; " + ...
+                %     "did not satisfy validation function %s.";
+                % %check if we have 1 or 0 outputs (ei, use logical output or
+                % %trigger internal error message).
+                %
+                %
+                %
+                % %matlab is a pain. If i get an anonymous function, then it
+                % %can't tell you how many outputs it expects. So it will try
+                % %1 and then completely fail if the underlying function had
+                % %no outputs. Because I want functions that either throw
+                % %errors or output a logical, I have to first run the
+                % %function with no ouputs specified, then if that didn't
+                % %throw an error, run it AGAIN to now get the logical return
+                % %back. What a pain.
+                % numOut = nargout(validationFunc);
+                %
+                % if numOut == 0
+                %     validationFunc(paramValues{:});
+                % elseif numOut >= 1 || numOut < -1
+                %     if ~validationFunc(paramValues{:})
+                %         % find a good way to tell the user which conditional
+                %         % constraint was not satisfied.
+                %         exception = MException(baseErrorID, invalidConstraintMsg,...
+                %             obj.Parser.FunctionName,strjoin(paramNames,"', '"),func2str(validationFunc));
+                %         throwAsCaller(exception);
+                %     end
+                % else
+                %     true; %hack begins
+                %     validationFunc(paramValues{:});
+                %     result = ans; %hack ends
+                %     if ~result
+                %         % find a good way to tell the user which conditional
+                %         % constraint was not satisfied.
+                %         exception = MException(baseErrorID, invalidConstraintMsg,...
+                %             obj.Parser.FunctionName,strjoin(paramNames,"', '"),func2str(validationFunc));
+                %         throwAsCaller(exception);
+                %     end
+                % end
             end
 
             %% Unused warning
-            if options.warnUnusedParams && ~isempty(fieldnames(obj.Parser.Unmatched))
+            if options.warnUnusedParams && ~isempty(fieldnames(obj.Unmatched))
                 %warn the user if there are any unused parameters
                 warning("moduleParser:UnusedInputs",...
                     "The inputs '%s', were not requested by the " + ...
                     "moduleParser. They will be ignored.",...
-                    strjoin(fieldnames(obj.Parser.Unmatched),"', '"))
+                    strjoin(fieldnames(obj.Unmatched),"', '"))
             end
         end
 
@@ -226,7 +335,7 @@ classdef moduleParser < handle
 
     methods (Access = protected)
         %% validation functions.
-        function mustBeProperty(obj,paramName)
+        function mustBeParameter(obj,paramName)
             try
                 mustBeMember(paramName, obj.Parser.Parameters)
             catch err

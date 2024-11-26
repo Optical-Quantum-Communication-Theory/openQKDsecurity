@@ -16,14 +16,17 @@ arguments
     FunctionName (1,1) string
 end
 modParser = moduleParser(FunctionName);
-modParser.addRequiredParam("lowerBound",@mustBeReal);
-modParser.addRequiredParam("upperBound",@mustBeReal);
-modParser.addAdditionalConstraint(@isscalar,"lowerBound");
-modParser.addAdditionalConstraint(@isscalar,"upperBound");
+modParser.addRequiredParam("lowerBound", ...
+    @isscalar, ...
+    @mustBeReal);
+modParser.addRequiredParam("upperBound", ...
+    @isscalar, ...
+    @mustBeReal);
 modParser.addAdditionalConstraint(@(lowerBound,upperBound) lowerBound<=upperBound,["lowerBound","upperBound"]);
 
-modParser.addRequiredParam("initVal",@mustBeReal);
-modParser.addAdditionalConstraint(@isscalar,"initVal");
+modParser.addRequiredParam("initVal", ...
+    @isscalar, ...
+    @mustBeReal);
 modParser.addAdditionalConstraint(@(initVal,lowerBound,upperBound)...
     mustBeInRange(initVal,lowerBound,upperBound),["initVal","lowerBound","upperBound"]);
 end

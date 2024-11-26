@@ -1,6 +1,6 @@
 function [keyRate, modParser] = BasicKeyRateFunc(params,options,mathSolverFunc,debugInfo)
 % BasicKeyRateFunc A simple key rate function for a asymptotic key rate
-% calculations with equality constraints and deterministic key map. 
+% calculations with equality constraints and deterministic key map.
 %
 % Input parameters:
 % * dimA: dimension of Alice's system.
@@ -16,13 +16,13 @@ function [keyRate, modParser] = BasicKeyRateFunc(params,options,mathSolverFunc,d
 %   map on Alice and Bob's joint system. These should form a completely
 %   postive trace non-increasing linear map. Each Kraus operator must be
 %   the same size.
-% * keyProj:  A cell array of projection operators that perform the pinching map 
+% * keyProj:  A cell array of projection operators that perform the pinching map
 %   key on  G(\rho). These projection operators should sum to identity.
-% * fEC: error correction effiency. Set to 1 means for Shannon limit. 
+% * fEC: error correction effiency. Set to 1 means for Shannon limit.
 % * observablesJoint: The joint observables of Alice and Bob's
-%   measurments. The observables must be hermitian and each must be the size 
+%   measurments. The observables must be hermitian and each must be the size
 %   dimA*dimB by dimA*dimB. The observables assume the spaces are ordered A \otimes B.
-%   They also should be positive semi-definite and should sum to identity. 
+%   They also should be positive semi-definite and should sum to identity.
 % * expectationsJoint: The joint expectations (as an array) from Alice and
 %   Bob's measurements that line up with it's corresponding observable in
 %   observablesJoint. These values should be betwen 0 and 1.
@@ -38,7 +38,7 @@ function [keyRate, modParser] = BasicKeyRateFunc(params,options,mathSolverFunc,d
 % * keyRateRelEntStep2Linearization: Estimation of the key rate by using
 %   the relative entropy at the point where the Frank-Wolfe solver starts
 %   its step 2 linearization. THIS IS NOT A SAFE LOWER BOUND.
-% 
+%
 % Reviewed by Devashish Tupkary 2023/09/18
 % See also QKDKeyRateModule, makeGlobalOptionsParser
 arguments
@@ -64,10 +64,14 @@ modParser.addAdditionalConstraint(@isEqualSize,["observablesJoint","expectations
 modParser.addRequiredParam("krausOps", @isCPTNIKrausOps);
 modParser.addRequiredParam("keyProj", @(x) mustBeAKeyProj(x));
 
-modParser.addRequiredParam("dimA",@mustBeInteger);
-modParser.addRequiredParam("dimB", @mustBeInteger);
-modParser.addAdditionalConstraint(@mustBePositive,"dimA")
-modParser.addAdditionalConstraint(@mustBePositive,"dimB")
+modParser.addRequiredParam("dimA",...
+    @isscalar,...
+    @mustBeInteger,...
+    @mustBePositive);
+modParser.addRequiredParam("dimB",...
+    @isscalar,...
+    @mustBeInteger,...
+    @mustBePositive);
 modParser.addAdditionalConstraint(@observablesAndDimensionsMustBeTheSame,["observablesJoint","dimA","dimB"])
 
 modParser.addRequiredParam("announcementsA")
@@ -75,7 +79,9 @@ modParser.addRequiredParam("announcementsB")
 modParser.addRequiredParam("keyMap",@(x)mustBeA(x,"KeyMapElement"))
 modParser.addAdditionalConstraint(@mustBeSizedLikeAnnouncements,["expectationsJoint","announcementsA","announcementsB"])
 
-modParser.addRequiredParam("fEC", @(x) mustBeGreaterThanOrEqual(x,1));
+modParser.addRequiredParam("fEC",...
+    @isscalar, ...
+    @(x) mustBeGreaterThanOrEqual(x,1));
 
 modParser.addOptionalParam("rhoA", nan, @(x) isequaln(x,nan) || isDensityOperator(x));
 
@@ -137,7 +143,7 @@ end
 
 %set the linearization estimate key rate as well for debuging
 if isfield(debugMathSolver.info,"relEntStep2Linearization")
-    keyRateStep2Linearization = debugMathSolver.info.relEntStep2Linearization - deltaLeak; 
+    keyRateStep2Linearization = debugMathSolver.info.relEntStep2Linearization - deltaLeak;
     debugInfo.storeInfo("keyRateRelEntStep2Linearization",keyRateStep2Linearization)
 
     if options.verboseLevel>=2

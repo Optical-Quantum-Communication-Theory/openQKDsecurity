@@ -32,6 +32,6 @@ end
 globalOptionsParser = moduleParser(FunctionName);
 globalOptionsParser.addOptionalParam("cvxSolver","SDPT3",@isStringScalar); %find a way to check against the list of CVX solvers
 globalOptionsParser.addOptionalParam("cvxPrecision","high",@isStringScalar); %find a way to check againts the list of CVX precision levels
-globalOptionsParser.addOptionalParam("verboseLevel",1,@(x) x>=0);
-globalOptionsParser.addOptionalParam("errorHandling",ErrorHandling.CatchWarn,(@(x) mustBeMember(x,enumeration("ErrorHandling")))); % 1: catch error, but don't warn 2: catch error and warn 3: rethrow error.
+globalOptionsParser.addOptionalParam("verboseLevel",1,@isscalar,@mustBeNonnegative);
+globalOptionsParser.addOptionalParam("errorHandling",ErrorHandling.CatchWarn,@isscalar,@(x)mustBeMember(x,enumeration("ErrorHandling"))); % 1: catch error, but don't warn 2: catch error and warn 3: rethrow error.
 end

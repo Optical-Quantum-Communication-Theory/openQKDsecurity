@@ -152,7 +152,49 @@ classdef Qudit < Rotations
                 axisZXY (3,1) double {mustBeReal,Rotations.mustBeEuclidianLength(axisZXY,1)}
                 options.angleOnBlochSphere (1,1) logical = true;
             end
-            rotMat = Qudit.rotateStateZXY(rotationAngle,axisZXY,"angleOnBlochSphere",options.angleOnBlochSphere);
+            rotMat = Qudit.rotateStateZXY(rotationAngle,axisZXY,...
+                "angleOnBlochSphere",options.angleOnBlochSphere);
+            rho = rotMat*rho*rotMat';
+        end
+
+        function rho = rotationXYZChannel(rho,rotationAngle,axisXYZ,options)
+            % This behaves the same as Rotations.rotationZXYChannel but
+            % with the a permuted axis order.
+            %
+            % Implements a channel that rotates the input state arround the
+            % given axis on the Bloch sphere. The axis is specified by its
+            % X (DA), Y (RL), and Z (HV) coordinates in that order. By
+            % default, the angle of rotation is based on rotation around
+            % the bloch sphere (period of 4pi) and not a physical rotation
+            % such as a physically rotating a device (period of 2pi).
+            %
+            % If instead you need the Kraus operators, use
+            % Qudit.rotateStateXYZ (or equivalently
+            % Rotations.rotateStateXYZ) and place it into a 1x1 cell array.
+            %
+            % Input:
+            % * rotationAngle: Angle rotated by around the bloch sphere
+            %   (period of 4pi).
+            % * axisXYZ: Coordinates of the axis of rotation ordered X
+            %   (DA), Y(RL), Z (HV). The length of the vector must be 1 up
+            %   to a small numerical tolerance.
+            % Name-value arguments:
+            % * angleOnBlochSphere: Default true. When true, the angle of
+            %   rotation is based on rotation around the Bloch sphere
+            %   (period of 4pi). When false, the rotation is viewed as a
+            %   physical rotation (period of 2pi) such as physically
+            %   rotating a device.
+            %
+            % See Also: Rotations.rotateStateXYZ, Rotations.rotationZXYChannel
+            arguments
+                rho (2,2) double
+                rotationAngle (1,1) double {mustBeReal}
+                axisXYZ (3,1) double {mustBeReal,Rotations.mustBeEuclidianLength(axisXYZ,1)}
+                options.angleOnBlochSphere (1,1) logical = true;
+            end
+            axisZXY = circshift(axisXYZ,1);
+            rotMat = Qudit.rotateStateZXY(rotationAngle,axisZXY,...
+                "angleOnBlochSphere",options.angleOnBlochSphere);
             rho = rotMat*rho*rotMat';
         end
     end

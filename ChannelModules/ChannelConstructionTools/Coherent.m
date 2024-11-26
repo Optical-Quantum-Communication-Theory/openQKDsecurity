@@ -33,7 +33,7 @@ classdef Coherent < Rotations
             arguments
                 complexAmplitude (1,1) double
                 basis (1,1) double {mustBeMember(basis,[1,2,3])} % 1 = Z (HV), 2 = X (DA), 3 =Y (RL)
-                bitValue (1,1) double {mustBeMember(bitValue,[1,2]),mustBeEqualSize(basis,bitValue)} %1 = H/D/R, 2 = V/A/L
+                bitValue (1,1) double {mustBeMember(bitValue,[1,2])} %1 = H/D/R, 2 = V/A/L
             end
             coherentState = complexAmplitude*pauliBasis(basis,false)*zket(2,bitValue);
         end
@@ -56,7 +56,7 @@ classdef Coherent < Rotations
             %   starting from D and rotating towards the state R).
             arguments
                 complexAmplitude (1,1) double
-                thetaPolar (1,1) double {mustBeInRange(thetaPolar,0,3.141592653589793)} %pi
+                thetaPolar (1,1) double {mustBeInRange(thetaPolar,0,3.141592653589793)} %pi as double
                 phiAzimuth (1,1) double {mustBeReal}
             end
             coherentState = complexAmplitude*[cos(thetaPolar/2);exp(1i*phiAzimuth)*sin(thetaPolar/2)];
@@ -109,7 +109,10 @@ classdef Coherent < Rotations
             arguments
                 transmittance (1,1) double {mustBeInRange(transmittance,0,1)}
             end
-            transMat = sqrt([transmittance,1-transmittance;1-transmittance, transmittance]);
+            trans = sqrt(transmittance);
+            loss = sqrt(1-transmittance);
+            transMat = [trans,-loss;...
+                loss, trans];
         end
 
         function transMat = singleInputBeamSplitter(transmittance)
@@ -162,7 +165,7 @@ classdef Coherent < Rotations
             % * numCopies: positive integer for the number of copies to
             %   make.
             % Name-value arguments
-            % * weaveCopies: Default false. For a transition matrix with
+            % * weaveCopies (false): For a transition matrix with
             %   inputs a, b and outputs c, d, setting weaveCopies to true
             %   changes the new transition matrix's order of inputs and
             %   outputs to a1, a2, ... b1, b2, ... and c1, c2, ..., d1, d2,
@@ -187,25 +190,27 @@ classdef Coherent < Rotations
             % Computes the inner product between two sets of coherent
             % states. <coherentStatesA|coherentStatesB>.
             %
-            % * coherentStatesA: vector of complex coherent state
-            %   amplitudes. Recives the complex conjugate transpose for the
+            % * coherentStatesA: nd array of complex coherent state
+            %   amplitudes. Takes the complex conjugate for the
             %   inner product.
-            % * coherentStatesB: vector of complex cohrent state
+            % * coherentStatesB: nd array of complex coherent state
             %   amplitudes. Must be the same size as coherentStatesA.
             % Name-value arguments
-            % * combineModes: Default true. When true, each individual
+            % * combineModes(true): When true, each individual
             %   inner product is multiplied together as an inner product
-            %   across the Entire system. When false, each inner product is
-            %   returned separately in a n x 1 vector.
+            %   across the Entire system. When false, the inner products
+            %   are performed element wise.
             arguments
-                coherentStatesA (:,1) double
-                coherentStatesB (:,1) double {mustBeEqualSize(coherentStatesA,coherentStatesB)}
+                coherentStatesA double {mustBeFinite}
+                coherentStatesB double {mustBeFinite, mustBeEqualSize(coherentStatesA,coherentStatesB)}
                 options.combineModes (1,1) logical = true;
             end
+            
+            val = exp(-(abs(coherentStatesA).^2+abs(coherentStatesB).^2)/2 ...
+                +conj(coherentStatesA).*coherentStatesB);
+
             if options.combineModes
-                val = exp(-(norm(coherentStatesA)^2+norm(coherentStatesB)^2)/2 +coherentStatesA'*coherentStatesB);
-            else
-                val = exp(-(abs(coherentStatesA).^2+abs(coherentStatesB).^2)/2 +conj(coherentStatesA).*coherentStatesB);
+                val = prod(val,"all");
             end
         end
 
@@ -218,25 +223,25 @@ classdef Coherent < Rotations
             % coherentInnerProduct(coherentStatesA,coherentStatesB)...
             % ).^2).
             %
-            % * coherentStatesA: vector of complex coherent state
+            % * coherentStatesA: nd array of complex coherent state
             %   amplitudes.
-            % * coherentStatesB: vector of complex cohrent state
+            % * coherentStatesB: nd array of complex coherent state
             %   amplitudes. Must be the same size as coherentStatesA.
             % Name-value arguments
-            % * combineModes: Default true. When true, each individual
+            % * combineModes (true): When true, each individual
             %   probability is multiplied together as the probability for
-            %   the entire system. When false, each probability is returned
-            %   separately in a n x 1 vector.
+            %   the entire system. When false, each probability is
+            %   computed element wise.
             arguments
-                coherentStatesA (:,1) double
-                coherentStatesB (:,1) double {mustBeEqualSize(coherentStatesA,coherentStatesB)}
+                coherentStatesA double {mustBeFinite}
+                coherentStatesB double {mustBeFinite, mustBeEqualSize(coherentStatesA,coherentStatesB)}
                 options.combineModes (1,1) logical = true;
             end
             
             prob = exp(-abs(coherentStatesA-coherentStatesB).^2);
 
             if options.combineModes
-                prob = prod(prob);
+                prob = prod(prob,"all");
             end
         end
 
@@ -245,26 +250,26 @@ classdef Coherent < Rotations
             % coherent states. The Fock states recieve the complex
             % conjugate. <fockStates|coherentStates>.
             %
-            % * fockStates: vector of non-negative integers that represent
-            %   the number of photons in each mode. Recieves the complex
-            %   conjugate in the inner product.
-            % * coherentStates: vector of complex cohrent state amplitudes.
-            %   Must be the same size as fockStates.
+            % * fockStates: nd array of non-negative integers that
+            %   represent the number of photons in each mode. Takes the
+            %   complex conjugate for the inner product.
+            % * coherentStates: nd array of complex coherent state
+            %   amplitudes. Must be the same size as fockStates.
             % Name-value arguments
-            % * combineModes: Default true. When true, each individual
-            %   inner product is multiplied together as an inner product
-            %   across the Entire system. When false, each inner product is
-            %   returned separately in a n x 1 vector.
+            % * combineModes (true): When true, each individual inner
+            %   product is multiplied together as an inner product across
+            %   the Entire system. When false, the inner products are
+            %   performed element wise.
             arguments
-                fockStates (:,1) double {mustBeNonnegative,mustBeInteger}
-                coherentStates (:,1) double {mustBeEqualSize(coherentStates,fockStates)}
+                fockStates double {mustBeNonnegative,mustBeInteger}
+                coherentStates double {mustBeFinite,mustBeEqualSize(coherentStates,fockStates)}
                 options.combineModes (1,1) logical = true;
             end
             
             val = exp(-abs(coherentStates).^2/2).*coherentStates.^fockStates./sqrt(factorial(fockStates));
 
             if options.combineModes
-                val = prod(val);
+                val = prod(val,"all");
             end
         end
 
@@ -275,25 +280,103 @@ classdef Coherent < Rotations
             % tolerance, the result should be the same as
             % abs(fockCoherentInnerProduct(fockStates,coherentStates)).^2
             %
-            % * fockStates: vector of non-negative integers that represent
-            %   the number of photons in each mode.
-            % * coherentStates: vector of complex cohrent state amplitudes.
-            %   Must be the same size as fockStates.
+            % * fockStates: nd array of non-negative integers that
+            %   represent the number of photons in each mode.
+            % * coherentStates: nd array of complex coherent state
+            %   amplitudes. Must be the same size as fockStates.
             % Name-value arguments
-            % * combineModes: Default true. When true, each individual
-            %   probability is multiplied together as the probability for
-            %   the entire system. When false, each probability is returned
-            %   separately in a n x 1 vector.
+            % * combineModes (true): When true, each individual probability
+            %   is multiplied together as the probability for the entire
+            %   system. When false, each probability is computed element
+            %   wise.
             arguments
-                fockStates (:,1) double {mustBeNonnegative,mustBeInteger}
-                coherentStates (:,1) double {mustBeEqualSize(coherentStates,fockStates)}
+                fockStates double {mustBeNonnegative, mustBeInteger}
+                coherentStates  double {mustBeFinite, mustBeEqualSize(coherentStates,fockStates)}
                 options.combineModes (1,1) logical = true;
             end
 
             prob = exp(-abs(coherentStates).^2).*abs(coherentStates).^(2*fockStates)./factorial(fockStates);
 
             if options.combineModes
-                prob = prod(prob);            
+                prob = prod(prob,"all");            
+            end
+        end
+
+        %% threshold detectors
+        function probDetectorsClick = thresholdClickProbabilities(coherentState,darkCountRate)
+            % thresholdClickProbabilities computes the probability that a
+            % threshold detector will click (measure more than 0 photons)
+            % given an input coherent state and dark count rate.
+            %
+            % Inputs:
+            % * coherentState: nd array of complex coherent state
+            %   amplitudes.
+            % * darkCountRate (0): nd array that represents the probability
+            %   that a no click event is transformed into a click event.
+            %   The darkCountRate must have a compatible size for element
+            %   wise operations with coherentState.
+            %
+            % see also mustBeCompatibleSizes
+            arguments
+                coherentState double {mustBeFinite}
+                darkCountRate double {mustBeInRange(darkCountRate,0,1),...
+                    mustBeCompatibleSizes(darkCountRate,coherentState)}= 0;
+            end
+
+            % prob click = 1 - prob no click
+            probDetectorsClick = 1 - Coherent.fockCoherentProb(zeros(size(coherentState)),...
+                coherentState,"combineModes",false);
+
+            % dark counts cause some no click events to click
+            probDetectorsClick = 1-(1-probDetectorsClick).*(1-darkCountRate);
+
+        end
+
+        function probDetectorsClickPatterns = passiveThresholdClickPatternProbabilities(probDetectorsClick)
+            % Computes the probabilities of all possible click patterns for
+            % a set of threshold detectors (assuming passive linear optics
+            % and coherent states). Each column is considered it's own set
+            % of detector click probabilities.
+            % 
+            % For a single column let the detector click probabilities be
+            % p(1|1), p(1|2),..., p(1|n). For each i in [1,2,...,n], p(0|i)
+            % = 1-p(1|i), and a detector click pattern  l in {0,1}^n. The
+            % detector click pattern l will occur with probability
+            % p(l) = prod_i=1^n p(l_i|i).
+            % 
+            % If a column stores the initial probabilities in the order
+            % [p(1|1); p(1|2);...; p(1|n)], then it will return a column of
+            % all 2^n pattern probabilities in the order [p(00...0);
+            % p(10...0); p(01...0); p(11...0); ...; p(11...1)]. For
+            % example, [0.25;0.1] is mapped to [0.675;0.225;0.075;0.025].
+            %
+            % Inputs:
+            % * probDetectorsClick: nd array of click probabilities for
+            %   threshold detectors.
+            %
+            % Outputs: 
+            % * probDetectorsClickPatterns: nd array with the same size
+            %   except 2^n columns where n was the previous number of
+            %   columns. 
+            arguments
+                probDetectorsClick double {mustBeInRange(probDetectorsClick,0,1)}
+            end
+
+            shape = size(probDetectorsClick);
+            numDetectors = shape(1);
+            probDetectorsClickPatterns = ones([2^numDetectors,shape(2:end)]);
+
+            for index = 1:numDetectors
+
+                half = 2^(index-1);
+
+                % click, stored in current bottom half
+                probDetectorsClickPatterns(1+half:2*half,:) = ...
+                    probDetectorsClickPatterns(1:half,:).*probDetectorsClick(index,:);
+
+                % no click, multiplied onto current top half
+                probDetectorsClickPatterns(1:half,:) = ...
+                    probDetectorsClickPatterns(1:half,:).*(1-probDetectorsClick(index,:));
             end
         end
     end

@@ -63,12 +63,18 @@ end
 
 %% options parser
 optionsParser = makeGlobalOptionsParser(mfilename);
-optionsParser.addOptionalParam("decoyTolerance",1e-14,@(x) x>=0);
-optionsParser.addOptionalParam("decoySolver","SDPT3");
-optionsParser.addOptionalParam("decoyPrecision","high");
-optionsParser.addOptionalParam("decoyForceSep",false, @islogical);
-optionsParser.addOptionalParam("decoyPhotonCutOff",10,@(x)mustBeInteger(x));
-optionsParser.addAdditionalConstraint(@(x) x>0,"decoyPhotonCutOff");
+optionsParser.addOptionalParam("decoyTolerance",1e-14,...
+    @isscalar,...
+    @mustBeNonnegative);
+optionsParser.addOptionalParam("decoySolver","SDPT3", @isStringScalar);
+optionsParser.addOptionalParam("decoyPrecision","high", @isStringScalar);
+optionsParser.addOptionalParam("decoyForceSep",false,...
+    @isscalar,...
+    @islogical);
+optionsParser.addOptionalParam("decoyPhotonCutOff",10, ...
+    @isscalar, ...
+    @(x)mustBeInteger(x), ...
+    @mustBePositive);
 optionsParser.parse(options);
 options = optionsParser.Results;
 
@@ -86,17 +92,23 @@ modParser.addRequiredParam("probSignalsA",@mustBeProbDist);
 modParser.addRequiredParam("krausOps", @isCPTNIKrausOps);
 modParser.addRequiredParam("keyProj", @(x) mustBeAKeyProj(x));
 
-modParser.addRequiredParam("dimA",@mustBeInteger);
-modParser.addRequiredParam("dimB", @mustBeInteger);
-modParser.addAdditionalConstraint(@mustBePositive,"dimA")
-modParser.addAdditionalConstraint(@mustBePositive,"dimB")
+modParser.addRequiredParam("dimA",...
+    @isscalar,...
+    @mustBeInteger,...
+    @mustBePositive);
+modParser.addRequiredParam("dimB",...
+    @isscalar,...
+    @mustBeInteger,...
+    @mustBePositive);
 modParser.addAdditionalConstraint(@observablesAndDimensionsMustBeTheSame,["observablesJoint","dimA","dimB"])
 
 modParser.addRequiredParam("announcementsA")
 modParser.addRequiredParam("announcementsB")
 modParser.addRequiredParam("keyMap",@(x)mustBeA(x,"KeyMapElement"))
 
-modParser.addRequiredParam("fEC", @(x) mustBeGreaterThanOrEqual(x,1));
+modParser.addRequiredParam("fEC",...
+    @isscalar,...
+    @(x) mustBeGreaterThanOrEqual(x,1));
 
 modParser.addOptionalParam("rhoA", nan, @(x) isequaln(x,nan) || isDensityOperator(x));
 
