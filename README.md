@@ -70,6 +70,58 @@ We also provide two math solver modules:
 
 In the future, we plan to add more protocols. We also welcome custom-defined protocols and solver modules.
 
+## Citing
+
+If you use Open QKD Security in research, please cite our software and write in your document something like
+```
+To calculate the key rate for protocol "X" we used the Open QKD Security package[#].
+```
+
+Here is a bibtex entry you can use:
+```bib
+@software{burniston_2024_14262569,
+  author       = {Burniston, John and
+                  Wang, Wenyuan and
+                  Kamin, Lars and
+                  Lin, Jie and
+                  Coles, Patrick and
+                  Metodiev, Eric and
+                  George, Ian and
+                  Li, Nicky Kai Hong and
+                  Fang, Kun and
+                  Chemtov, Max and
+                  Zhang, Yanbao and
+                  Böhm, Christopher and
+                  Winick, Adam and
+                  van Himbeeck, Thomas and
+                  Johnstun, Scott and
+                  Nahar, Shlok and
+                  Tupkary, Devashish and
+                  Pan, Shihong and
+                  Wang, Zhiyao and
+                  Corrigan, Aodhan and
+                  Kanitschar, Florian and
+                  Gracie, Laura and
+                  Gu, Shouzhen and
+                  Mathur, Natansh and
+                  Upadhyaya, Twesh and
+                  Lutkenhaus, Norbert},
+  title        = {Open {QKD} {S}ecurity: {V}ersion 2.0.2},
+  month        = dec,
+  year         = 2024,
+  publisher    = {Zenodo},
+  version      = {v2.0.2},
+  doi          = {10.5281/zenodo.14262569},
+  url          = {https://doi.org/10.5281/zenodo.14262569}
+  swhid        = {swh:1:dir:ce63165f716a15a425fbadc208e27934cc66be10
+                   ;origin=https://doi.org/10.5281/zenodo.14262568;vi
+                   sit=swh:1:snp:ea6ece4519d009abf5ae6b7c084f97ba9d3f
+                   14c2;anchor=swh:1:rel:54e7860c1d1e613f2e7a075653d1
+                   2fa44f1226fa;path=/
+                  },
+}
+```
+
 ## Contributing
 
 
