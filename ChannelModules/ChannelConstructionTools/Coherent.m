@@ -4,9 +4,23 @@ classdef Coherent < Rotations
     % optical modes. We then write coherent states across them as
     % |vec(alpha)> := |alpha_1>|alpha_2> ... |alpha_n>. For this class, we
     % store coherent states by extracting the column vector vec(alpha) in
-    % C^n. Furthermore, any operator, M, that transforms mode annihilation
-    % operators as vec(b) = M*vec(a), then M transforms coherent states as
-    % |vec(beta)>_vec(b) = |M*vec(alpha)>_vec(a).
+    % C^n.
+    % 
+    % A linear optics system characterized by matrix M in C^{m x n} with
+    % ||M||_infinity <= 1 acts as the quantum channel:
+    %
+    % Phi_{M,A->B}(|vec(alpha)><vec(beta)|_A) = <vec(beta)|vec(alpha)>
+    % / (<M vec(beta)|M vec(alpha)>) * |M vec(alpha)><M vec(beta)|_B
+    %
+    % When M is an isometry, one can think of the transformation as a
+    % replacement of mode creation operators vec(a^dagger) via
+    % vec(b^dagger) = M vec(a^dagger) or equivalently
+    % M^dagger*vec(b^dagger) = vec(a^dagger).
+    %
+    % Note the special case:
+    % 
+    % Phi_{M,A->B}(|vec(alpha)><vec(alpha)|_A) =
+    % |M*vec(alpha)><M*vec(alpha)|_A)
     %
     % See Also: Rotations Qudit
     methods (Static)
@@ -96,12 +110,11 @@ classdef Coherent < Rotations
 
         function transMat = beamSplitter(transmittance)
             % A function that constructs the unitary transition matrix on
-            % coherent states/annihilation operators when a beam splitter
-            % is applied to a two mode state (one on each input side of the
-            % beam splitter). The outputs are organized so that a
-            % transmittance of 1 results in the identity matrix.
-            % Furthermore, no global or relative phase shifts are applied
-            % to the output modes.
+            % coherent states when a beam splitter is applied to a two mode
+            % state (one on each input side of the beam splitter). The
+            % outputs are organized so that a transmittance of 1 results in
+            % the identity matrix. Furthermore, no global or relative phase
+            % shifts are applied to the output modes.
             %
             % * transmittance: proportion of the intensity that is
             %   transmitted through the beam splitter without being
@@ -117,13 +130,12 @@ classdef Coherent < Rotations
 
         function transMat = singleInputBeamSplitter(transmittance)
             % A function that constructs the isometry transition matrix on
-            % a coherent state/annihilation operator when a beam splitter
-            % is applied to a single input mode. This is useful for passive
-            % detector schemes like in BB84 where the signal must be split
-            % randomly into multiple detector setups. The outputs are
-            % ordered as transmitted portion then reflected portion.
-            % Furthermore, no global or relative phase shifts are applied
-            % to the output modes.
+            % a coherent state when a beam splitter is applied to a single
+            % input mode. This is useful for passive detector schemes like
+            % in BB84 where the signal must be split randomly into multiple
+            % detector setups. The outputs are ordered as transmitted
+            % portion then reflected portion. Furthermore, no global or
+            % relative phase shifts are applied to the output modes.
             %
             % * transmittance: proportion of the intensity that is
             %   transmitted through the beam splitter without being
@@ -136,13 +148,13 @@ classdef Coherent < Rotations
 
         function transMat = singleInputMultiBeamSpliter(probDist)
             % A function that constructs the isometry transition matrix on
-            % a coherent state/annihilation operator when that splits the
-            % input across multiple output modes based on fractions of the
-            % intensity. This is useful for passive detector schemes like
-            % six-state where the signal must be split randomly into
-            % multiple detector setups. The outputs are ordered the same as
-            % the probability distribution. No global or relative phase
-            % shifts are applied to the output modes.
+            % a coherent state  when that splits the input across multiple
+            % output modes based on fractions of the intensity. This is
+            % useful for passive detector schemes like six-state where the
+            % signal must be split randomly into multiple detector setups.
+            % The outputs are ordered the same as the probability
+            % distribution. No global or relative phase shifts are applied
+            % to the output modes.
             % 
             % * probDist: probability distribtion to distribute the beam
             %   into fractions of the orgininal intensity.
@@ -190,10 +202,10 @@ classdef Coherent < Rotations
             % Computes the inner product between two sets of coherent
             % states. <coherentStatesA|coherentStatesB>.
             %
-            % * coherentStatesA: nd array of complex coherent state
+            % * coherentStatesA: An nd array of complex coherent state
             %   amplitudes. Takes the complex conjugate for the
             %   inner product.
-            % * coherentStatesB: nd array of complex coherent state
+            % * coherentStatesB: An nd array of complex coherent state
             %   amplitudes. Must be the same size as coherentStatesA.
             % Name-value arguments
             % * combineModes(true): When true, each individual
@@ -223,9 +235,9 @@ classdef Coherent < Rotations
             % coherentInnerProduct(coherentStatesA,coherentStatesB)...
             % ).^2).
             %
-            % * coherentStatesA: nd array of complex coherent state
+            % * coherentStatesA: An nd array of complex coherent state
             %   amplitudes.
-            % * coherentStatesB: nd array of complex coherent state
+            % * coherentStatesB: An nd array of complex coherent state
             %   amplitudes. Must be the same size as coherentStatesA.
             % Name-value arguments
             % * combineModes (true): When true, each individual
@@ -250,10 +262,10 @@ classdef Coherent < Rotations
             % coherent states. The Fock states recieve the complex
             % conjugate. <fockStates|coherentStates>.
             %
-            % * fockStates: nd array of non-negative integers that
+            % * fockStates: An nd array of non-negative integers that
             %   represent the number of photons in each mode. Takes the
             %   complex conjugate for the inner product.
-            % * coherentStates: nd array of complex coherent state
+            % * coherentStates: An nd array of complex coherent state
             %   amplitudes. Must be the same size as fockStates.
             % Name-value arguments
             % * combineModes (true): When true, each individual inner
@@ -280,9 +292,9 @@ classdef Coherent < Rotations
             % tolerance, the result should be the same as
             % abs(fockCoherentInnerProduct(fockStates,coherentStates)).^2
             %
-            % * fockStates: nd array of non-negative integers that
+            % * fockStates: An nd array of non-negative integers that
             %   represent the number of photons in each mode.
-            % * coherentStates: nd array of complex coherent state
+            % * coherentStates: An nd array of complex coherent state
             %   amplitudes. Must be the same size as fockStates.
             % Name-value arguments
             % * combineModes (true): When true, each individual probability
@@ -309,12 +321,12 @@ classdef Coherent < Rotations
             % given an input coherent state and dark count rate.
             %
             % Inputs:
-            % * coherentState: nd array of complex coherent state
+            % * coherentState: An nd array of complex coherent state
             %   amplitudes.
-            % * darkCountRate (0): nd array that represents the probability
-            %   that a no click event is transformed into a click event.
-            %   The darkCountRate must have a compatible size for element
-            %   wise operations with coherentState.
+            % * darkCountRate (0): An nd array that represents the
+            %   probability that a no click event is transformed into a
+            %   click event. The darkCountRate must have a compatible size
+            %   for element wise operations with coherentState.
             %
             % see also mustBeCompatibleSizes
             arguments
@@ -351,11 +363,11 @@ classdef Coherent < Rotations
             % example, [0.25;0.1] is mapped to [0.675;0.225;0.075;0.025].
             %
             % Inputs:
-            % * probDetectorsClick: nd array of click probabilities for
+            % * probDetectorsClick: An nd array of click probabilities for
             %   threshold detectors.
             %
             % Outputs: 
-            % * probDetectorsClickPatterns: nd array with the same size
+            % * probDetectorsClickPatterns: An nd array with the same size
             %   except 2^n columns where n was the previous number of
             %   columns. 
             arguments

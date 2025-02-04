@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/402256220.svg)](https://doi.org/10.5281/zenodo.14262568)
+
 # OpenQKDSecurity Version 2.0
 
 OpenQKDSecurity is a software package based in MATLAB that allows users to calculate key rates for quantum key distribution (QKD) protocols using the [Winick et al. framework](https://quantum-journal.org/papers/q-2018-07-26-77/) ([arXiv](https://arxiv.org/abs/1710.05511)). It is extensible, allowing for user-defined protocols to be implemented, and modular, allowing for users to change specific aspects of a protocol. Our software can be used to interface with experimental data, demonstrate the theoretical scalability of protocols in various conditions, and optimize parameters to maximize key rate. Its modular structure helps break down the colossal task of calculating key rates into small areas that require only domain specific knowledge. Therefore, no single person must be an expect in all areas.
@@ -45,7 +47,10 @@ Our software has the following dependencies for its default settings:
 
 Please refer to the documentation of each of these software packages for installation instructions.
 
-To install the openQKDSecurity package, download the repository on GitHub as a zip file and unzip to a preferred directory. This can be done on the main page of the repository by pressing the green “Code” button at the top of the page and then selecting "Download ZIP".
+To install the openQKDSecurity package, download the repository on GitHub as a zip file and unzip to a preferred directory. This can be done on the main page of the repository by pressing the green “Code” button at the top of the page and then selecting "Download ZIP". Alternatively, you can clone the reposity using git with
+```
+git clone https://github.com/Optical-Quantum-Communication-Theory/openQKDsecurity
+```
 
 Next, ensure that our software and the above dependencies are on your MATLAB path.To place a folder on your path, navigate to it in MATLAB, then right-click and select "Add to Path\textgreater Selected folder and Subfolders". Make sure you do this for OpenQKDSecurity, QETLAB and CVX. We also recommend you run "cvx_setup" to check if CVX is properly configured and which solvers are available.
 
@@ -53,6 +58,16 @@ Before you close MATLAB, go to "Home\>Environment\>Set Path" and click "save" at
 
 > [!IMPORTANT]
 > We strongly encourage you to run "testInstall.m" at this point to check for basic installation issues.
+
+
+## Updating
+
+- If you cloned the repository, fetch and pull changes to your local copy. Next, remove OpenQKDSecurity and all subfolders from your path, then add OpenQKDSecurity and all subfolder back to your path.
+
+- If you downloaded the repository as a zip file, back up any local files you added. Next, remove OpenQKDSecurity and all subfolders from your path, then delete the folder. Unzip the new version and add OpenQKDSecurity and all subfolder back to your path.
+
+Once again, we recommend you run "testInstall.m" to check for basic installation issues.
+
 
 ## Current Status
 Currently in this version of the software, we provide the following example protocols:
@@ -67,6 +82,58 @@ We also provide two math solver modules:
 * FRGNSolver (requires the ZGNQKD solver), which uses facial reduction and a Gauss-Newton method to simplify and solve the SDP to arrive at quantum relative entropy. This solver was written by members of Henry Wolkowicz's group at the University of Waterloo and is published at https://arxiv.org/abs/2104.03847v2. Note that this solver can only handle strict equality constraints at the moment.
 
 In the future, we plan to add more protocols. We also welcome custom-defined protocols and solver modules.
+
+## Citing
+
+If you use Open QKD Security in research, please cite our software and write in your document something like
+```
+To calculate the key rate for protocol "X" we used the Open QKD Security package[#].
+```
+
+Here is a bibtex entry you can use:
+```bib
+@software{burniston_2024_14262569,
+  author       = {Burniston, John and
+                  Wang, Wenyuan and
+                  Kamin, Lars and
+                  Lin, Jie and
+                  Coles, Patrick and
+                  Metodiev, Eric and
+                  George, Ian and
+                  Li, Nicky Kai Hong and
+                  Fang, Kun and
+                  Chemtov, Max and
+                  Zhang, Yanbao and
+                  Böhm, Christopher and
+                  Winick, Adam and
+                  van Himbeeck, Thomas and
+                  Johnstun, Scott and
+                  Nahar, Shlok and
+                  Tupkary, Devashish and
+                  Pan, Shihong and
+                  Wang, Zhiyao and
+                  Corrigan, Aodhan and
+                  Kanitschar, Florian and
+                  Gracie, Laura and
+                  Gu, Shouzhen and
+                  Mathur, Natansh and
+                  Upadhyaya, Twesh and
+                  Lutkenhaus, Norbert},
+  title        = {Open {QKD} {S}ecurity: {V}ersion 2.0.2},
+  month        = dec,
+  year         = 2024,
+  publisher    = {Zenodo},
+  version      = {v2.0.2},
+  doi          = {10.5281/zenodo.14262569},
+  url          = {https://doi.org/10.5281/zenodo.14262569}
+  swhid        = {swh:1:dir:ce63165f716a15a425fbadc208e27934cc66be10
+                   ;origin=https://doi.org/10.5281/zenodo.14262568;vi
+                   sit=swh:1:snp:ea6ece4519d009abf5ae6b7c084f97ba9d3f
+                   14c2;anchor=swh:1:rel:54e7860c1d1e613f2e7a075653d1
+                   2fa44f1226fa;path=/
+                  },
+}
+```
 
 ## Contributing
 
