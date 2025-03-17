@@ -213,7 +213,7 @@ end
 
 
 
-debugInfo.storeInfo("renEnt",relEnt);
+debugInfo.storeInfo("relEnt",relEnt);
 
 end
 
