@@ -27,7 +27,9 @@ function [keyRate, modParser] = BasicKeyRateFunc(params,options,mathSolverFunc,d
 %   Bob's measurements that line up with it's corresponding observable in
 %   observablesJoint. These values should be betwen 0 and 1.
 % * rhoA (nan): The fixed known density matrix on Alice's side for
-%   prepare-and-measure protocols.
+%   prepare-and-measure protocols. Setting to nan means this is ignored and
+%   no rhoA constraint is passed to the convex solver. Furthermore, an
+%   explicit Tr[rhoAB] == 1 constraint is added in its place.
 % Outputs:
 % * keyrate: Key rate of the QKD protocol measured in bits per block
 %   processed.
@@ -113,15 +115,18 @@ debugInfo.storeInfo("deltaLeak",deltaLeak);
 %operators for the key map (Z).
 mathSolverInput.krausOps = params.krausOps;
 mathSolverInput.keyProj = params.keyProj;
-% also include rhoA from the description if it was given
-if ~isequaln(params.rhoA,nan)
-    mathSolverInput.rhoA = params.rhoA;
-end
 
 numObs = numel(params.observablesJoint);
 
 mathSolverInput.equalityConstraints = arrayfun(@(x)...
     EqualityConstraint(params.observablesJoint{x},params.expectationsJoint(x)),1:numObs);
+
+% Include rhoA (if given) or add an explicit Tr[rhoAB] == 1 constriant.
+if ~isequaln(params.rhoA,nan)
+    mathSolverInput.rhoA = params.rhoA;
+else
+    mathSolverInput.equalityConstraints(end+1) = EqualityConstraint(eye(params.dimA*params.dimB),1);
+end
 
 % if block diag information was give, then pass it to the solver.
 if ~isequaln(params.blockDimsA,nan)
