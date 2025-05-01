@@ -1,6 +1,6 @@
 function newParams = GroupParamNames(params)
 % GroupParamNames A function to group names of parameters together. Turns
-% seperate parameters with names of the form "GROUP_<name>_<number>" into
+% separate parameters with names of the form "GROUP_<name>_<number>" into
 % a cell array, when seen by the protocol.
 %
 % Inputs:
@@ -51,7 +51,7 @@ for index =1:numel(haveGroupNames)
     groupName = extractGroupName(name);
 
 
-    %Now check if we need to add an new entry, or appened to an old entry
+    %Now check if we need to add an new entry, or append to an old entry
     if isfield(groups,groupName)
         groups.(groupName) = [groups.(groupName),name];
     else

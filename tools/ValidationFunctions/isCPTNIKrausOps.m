@@ -37,7 +37,7 @@ end
 % Fastest way to check is see if the max eigen value is greater than 1 up
 % to tolerance.
 maxEigval = max(eig(krausSum)); % Faster than norm and lambda_max for any reasonably sized matrix.
-if ~(maxEigval <= 1 || ismembertol(maxEigval,1))
+if ~(maxEigval <= 1 || equaltol(maxEigval,1))
     val = false;
     return
 end

@@ -5,9 +5,9 @@ function [newParams,modParser] = BasicBB84Alice2DDescriptionFunc(params, options
 % 2d space. This is used with BasicKeyRateFunc.
 %
 % Input parameters:
-% * pz: The probability that ALice measures in the Z-basis (for this protocol,
-%   it's also the probability that Bob measures in the Z-basis aswell). It
-%   must be between 0 and 1.
+% * pz: The probability that Alice measures in the Z-basis (for this
+%   protocol, it's also the probability that Bob measures in the Z-basis as
+%   well). It must be between 0 and 1.
 % Output parameters:
 % * observablesJoint: The joint observables for Alice and Bob's measurement
 %   of the signals.
@@ -27,7 +27,7 @@ function [newParams,modParser] = BasicBB84Alice2DDescriptionFunc(params, options
 %   outcome to key bits (May be written with Strings).
 % * krausOps: A cell array of matrices. The Kraus operators that form the G
 %   map on Alice and Bob's joint system. These should form a completely
-%   postive trace non-increasing linear map. Each Kraus operator must be
+%   positive trace non-increasing linear map. Each Kraus operator must be
 %   the same size.
 % * keyProj:  A cell array of projection operators that extract the key
 %   from G(\rho). These projection operators should sum to identity. This
@@ -77,7 +77,7 @@ newParams.dimB = dimB;
 %% rhoA for source replacement scheme
 newParams.rhoA = eye(dimA)/dimA;
 
-%% joint obserables
+%% joint observables
 POVMsA = {pz*diag([1,0]),pz*diag([0,1]),(1-pz)*(ketP*ketP'),(1-pz)*(ketM*ketM')};
 POVMsB = POVMsA;
 newParams.POVMA = POVMsA;
@@ -101,10 +101,10 @@ newParams.keyMap = [KeyMapElement("Z","Z",[1,2,1,2]), KeyMapElement("X","X",[1,2
 %% Kraus Ops (for G map)
 % A: Alice's system, B: Bob's System, C: announcement register, R:
 % key register.
-% The Kraus operators are matrices from ABC \rightarrow RBC. Here we
-% used an isometry to shrink the Kraus operators from outputing on RABC
-% to just RBC. This lets us save time on computing eigen values later.
-% The factor of pz comes from a \sqrt(pz) from Alice's measurements(from Schmidt
+% The Kraus operators are matrices from ABC \rightarrow RBC. Here we used
+% an isometry to shrink the Kraus operators from outputting on RABC to just
+% RBC. This lets us save time on computing eigen values later. The factor
+% of pz comes from a \sqrt(pz) from Alice's measurements(from Schmidt
 % reduction) and \sqrt(pz) from Bob's measurements.
 krausOpZ = pz*kron(diag([1,0])+diag([0,1]),kron(eye(dimB),zket(2,1)));
 krausOpX = (1-pz)*kron(zket(2,1)*ketP'+zket(2,2)*ketM',kron(eye(dimB),zket(2,2)));
@@ -128,7 +128,7 @@ proj0 = kron(diag([1,0]),eye(dimB*2));
 proj1 = kron(diag([0,1]),eye(dimB*2));
 keyProj = {proj0,proj1};
 
-%% set kraus ops and key projection in new parameters
+%% set Kraus ops and key projection in new parameters
 newParams.krausOps = krausOps;
 newParams.keyProj = keyProj;
 

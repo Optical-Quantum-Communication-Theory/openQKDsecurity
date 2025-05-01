@@ -3,7 +3,7 @@ function allCellsMustBeHermitian(operators)
 % error if the condition is violated.
 %
 % Inputs:
-% * operators: A cell array of operators to test hermiticity
+% * operators: A cell array of operators to test Hermiticity
 %
 % See also ishermitian
 if ~iscell(operators)

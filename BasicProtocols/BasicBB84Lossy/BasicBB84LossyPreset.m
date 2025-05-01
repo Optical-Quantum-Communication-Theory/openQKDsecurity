@@ -25,7 +25,7 @@ qkdInput.addScanParameter("transmittance", num2cell(transmittance));
 %Define basis choice probability of Alice and Bob (Z basis)
 qkdInput.addFixedParameter("pz",1/2);
 
-%Error correction efficiency f >= 1, f=1 is at Shanon limit 
+%Error correction efficiency f >= 1, f=1 is at Shannon limit 
 qkdInput.addFixedParameter("fEC",1);
 
 

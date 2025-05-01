@@ -1,11 +1,11 @@
 classdef EqualityConstraint < BaseConstraint
     %EQUALITYCONSTRAINT A simple class to model equality constraints for
-    %   the Hilbert space of hermitian operators.
+    %   the Hilbert space of Hermitian operators.
     %   Constraints are of the form tr[operator'*rho] = scalar, up to some
     %   error tolerance. This is an affine constraint.
     %
     % Properties:
-    % * operator: n x n complex hermitian operator. It must have at least
+    % * operator: n x n complex Hermitian operator. It must have at least
     %   one element and be finite in value.
     % * scalar: Finite, real valued scalar (also not nan).
     % * rhoDim: Size of the input system's Hilbert space for this
@@ -27,8 +27,8 @@ classdef EqualityConstraint < BaseConstraint
             % See class description above.
             %
             % Input:
-            % * operator (0): nxn complex hermitian operator. It must have
-            %   at least one element and finite in value.
+            % * operator (0): n x n complex Hermitian operator. It must
+            %   have at least one element and finite in value.
             % * scalar (0): Finite, real valued scalar (also not nan).
             arguments
                 operator (:,:) double = 0;

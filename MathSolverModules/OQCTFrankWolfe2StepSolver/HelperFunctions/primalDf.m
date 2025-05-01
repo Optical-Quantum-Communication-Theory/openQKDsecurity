@@ -1,6 +1,6 @@
 function dfval = primalDf(rho,keyProj,krausOperators)
 % primalDf Computes the gradient of the primal problem's objective
-% function. The Gradiant follows the numerator convention for matrix
+% function. The Gradient follows the numerator convention for matrix
 % derivatives.
 %
 % Inputs:
@@ -15,7 +15,7 @@ function dfval = primalDf(rho,keyProj,krausOperators)
 %
 % See also primalDfep, primalf, primalfep
 arguments
-    %minimial checks just to make sure cells are formatted in the correct
+    %minimal checks just to make sure cells are formatted in the correct
     %orientation. 
     rho (:,:) double {mustBeHermitian}
     keyProj (:,1) cell

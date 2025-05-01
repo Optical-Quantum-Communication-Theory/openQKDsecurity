@@ -4,7 +4,7 @@ function modParser = makeOptimizerParamParser(FunctionName)
 %
 % These parameters represent 3 values:
 % * lowerBound: Lower bound on optimization for the parameter.
-% * initVal: Intitial value the optimization module should use for this
+% * initVal: Initial value the optimization module should use for this
 %   parameter.
 % * upperBound: upper bound on optimization for the parameter.
 %

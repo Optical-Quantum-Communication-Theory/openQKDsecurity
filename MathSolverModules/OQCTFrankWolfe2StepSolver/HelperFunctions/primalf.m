@@ -14,7 +14,7 @@ function fval = primalf(rho,keyProj,krausOperators)
 %
 % See also primalDf, primalfep, FW2StepSolver
 arguments
-    %minimial checks just to make sure cells are formatted in the correct
+    %minimal checks just to make sure cells are formatted in the correct
     %orientation. 
     rho (:,:) double {mustBeHermitian}
     keyProj (:,1) cell

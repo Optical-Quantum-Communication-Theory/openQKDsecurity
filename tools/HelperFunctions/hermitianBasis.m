@@ -1,5 +1,5 @@
 function basis = hermitianBasis(dim)
-% hermitianBasis Creates a basis of hermitian observables of dimension dim.
+% hermitianBasis Creates a basis of Hermitian observables of dimension dim.
 %
 % Inputs:
 % * dim: The dimension of the matrices in the basis

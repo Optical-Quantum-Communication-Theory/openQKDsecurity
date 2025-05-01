@@ -17,7 +17,7 @@ classdef QKDPlot
 
     methods(Static)
         function simple1DPlot(qkdInput,results,options)
-            % simple1DPlot Auto plot a single scan paramter vs key rate.
+            % simple1DPlot Auto plot a single scan parameter vs key rate.
             %
             % Input:
             % * qkdInput: QKDSolverInput used to calculate the results. It
@@ -32,7 +32,7 @@ classdef QKDPlot
             %   See QKDPlot for more details.
             % * markerLineStyles ("x-"): Name-value argument for the marker
             %   and line style used.
-            % * figAxis (axes(figure())): Axes object to plot on. Usefull
+            % * figAxis (axes(figure())): Axes object to plot on. Useful
             %   when working with tiled/sub figures.
             %
             % See also QKDPlot
@@ -73,10 +73,11 @@ classdef QKDPlot
             % * yScaleStyle ("linear"): Name-value argument for how the
             %   y-axis is formatted. Options are "linear", "log", and "dB".
             %   See QKDPlot for more details.
-            % * markerLineStyles (["x-","o-",".-","^-","+-",">-","s-","p-","*-"]): Name-value argument for the marker
-            %   and line style used. If there are more lines than styles,
-            %   then the system loops back to the start.
-            % * figAxis (axes(figure())): Axes object to plot on. Usefull
+            % * markerLineStyles (["x-","o-",".-","^-","+-",">-","s-","p-","*-"]):
+            %   Name-value argument for the marker and line style used. If
+            %   there are more lines than styles, then the system loops
+            %   back to the start.
+            % * figAxis (axes(figure())): Axes object to plot on. Useful
             %   when working with tiled/sub figures.
             %
             % See also QKDPlot, QKDPlot.plotParameters
@@ -119,19 +120,21 @@ classdef QKDPlot
             % * xParamName: Name of the parameter to plot on the x-axis.
             % * yParamName: Name of the parameter to plot on the y-axis.
             % * addLegend (true): Add a legend to the plot.
-            % * legendNames (compose("data set %d",1:numel(resultsSets))): Names used for each line sorted in
-            %   the same order as resultsSets. By default it uses a generic
-            %   "data set x" name. 
+            % * legendNames (compose("data set %d",1:numel(resultsSets))):
+            %   Names used for each line sorted in the same order as
+            %   resultsSets. By default it uses a generic "data set x"
+            %   name.
             % * xScaleStyle ("linear"): Name-value argument for how the
             %   x-axis is formatted. Options are "linear", "log", and "dB".
             %   See QKDPlot for more details.
             % * yScaleStyle ("linear"): Name-value argument for how the
             %   y-axis is formatted. Options are "linear", "log", and "dB".
             %   See QKDPlot for more details.
-            % * markerLineStyles (["x-","o-",".-","^-","+-",">-","s-","p-","*-"]): Name-value argument for the marker
-            %   and line style used. If there are more lines than styles,
-            %   then the system loops back to the start.
-            % * figAxis (axes(figure())): Axes object to plot on. Usefull
+            % * markerLineStyles (["x-","o-",".-","^-","+-",">-","s-","p-","*-"]):
+            %   Name-value argument for the marker and line style used. If
+            %   there are more lines than styles, then the system loops
+            %   back to the start.
+            % * figAxis (axes(figure())): Axes object to plot on. Useful
             %   when working with tiled/sub figures.
             %
             % See also QKDPlot
@@ -157,7 +160,8 @@ classdef QKDPlot
 
             % dB scaling if requested
 
-            % check to make sure we don't mix dB scaling with simple indexing
+            % check to make sure we don't mix dB scaling with simple
+            % indexing
             if simpleIndexingXFlag && xUseDB || simpleIndexingYFlag && yUseDB
                 throw(MException("plotParameters:CantSimpleIndexAndDBScale",...
                     "The data requires simple linear indexing which is not " + ...

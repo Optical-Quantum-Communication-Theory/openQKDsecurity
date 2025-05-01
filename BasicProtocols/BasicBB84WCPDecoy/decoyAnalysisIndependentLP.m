@@ -1,5 +1,5 @@
 function [conExpL,conExpU] = decoyAnalysisIndependentLP(conExp,decoys,options)
-% decoyAnalysisIndependentLP: A decoy analysis module for assymptotic data.
+% decoyAnalysisIndependentLP: A decoy analysis module for asymptotic data.
 % Returns the upper and lower bounds on the expectations condition on
 % single photons being sent and signal choice. This function assumes that
 % the source uses a weak coherent pulsed laser to generate signals.
@@ -12,7 +12,7 @@ function [conExpL,conExpU] = decoyAnalysisIndependentLP(conExp,decoys,options)
 %   signal sent by Alice). The first page is the key generating intensity.
 % * decoys: vector of intensities used for each page in conExp. Ordered by
 %   the page number. The intensities must be non-negative. Warning: an
-%   intensity of 0 is rather unstabe in numerical decoy analysis. We
+%   intensity of 0 is rather unstable in numerical decoy analysis. We
 %   recommend you try something slightly above.
 %
 % Name-value pair options:
@@ -28,10 +28,10 @@ function [conExpL,conExpU] = decoyAnalysisIndependentLP(conExp,decoys,options)
 %   added to force the single photon components to respect the bound.
 %
 % Output:
-% * conExpL: Lower bound on the probability of Bob's measurment outcomes
+% * conExpL: Lower bound on the probability of Bob's measurement outcomes
 %   (rows) conditioned on Alice's signal choice (columns) and single photon
 %   sent.
-% * conExpU: Upper bound on the probability of Bob's measurment outcomes
+% * conExpU: Upper bound on the probability of Bob's measurement outcomes
 %   (rows) conditioned on Alice's signal choice (columns) and single photon
 %   sent.
 %   
@@ -60,10 +60,10 @@ poissonCache = poisson(decoysGrid,countGrid);
 % more efficiently.
 [dimA,dimB,numDecoy] = size(conExp);
 
-% combines Alice's and Bob's dimensions together and stacks the expecations
-% for each intensity
+% combines Alice's and Bob's dimensions together and stacks the
+% expectations for each intensity
 % Result is of the form: [<Alice's & Bob's outcome intesity 1> ; <Alice's &
-% Bob's outcome intesity 2> ; ... ]
+% Bob's outcome intensity 2> ; ... ]
 conExp = reshape(conExp,[dimA*dimB,numDecoy]).';
 
 [conExpL,conExpU] = decoyIndependentLP(conExp,poissonCache,...
@@ -168,7 +168,7 @@ end
 end
 
 function rowsMustSumTo1(conExp)
-if~all(ismembertol(full(sum(conExp,2)),1))
+if~all(equaltol(sum(conExp,2),1))
     throwAsCaller(MException("deocyAnalysisIndependentLP:RowDontSumTo1",...
         "All rows must sum to 1."))
 end

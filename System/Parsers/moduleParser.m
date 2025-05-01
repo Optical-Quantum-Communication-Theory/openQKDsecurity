@@ -1,5 +1,5 @@
 classdef moduleParser < handle
-    % MODULEPARSER Builds a parsering scheme similar to Matlab's built in
+    % MODULEPARSER Builds a parsing scheme similar to Matlab's built in
     % inputParser. A user defines what inputs to their modules are
     % required, optional (with default values), and (optionally) data
     % validation functions. Once the parser is created, the module parser
@@ -12,7 +12,7 @@ classdef moduleParser < handle
     % See also INPUTPARSER
 
     properties (SetAccess = protected, GetAccess = protected)
-        %underling matlab InputParser
+        %underling matlab inputParser
         Parser (1,1) inputParser
         %storing extra constraints as a struct array with validation function and inputs.
         AdditionalConstraints (:,1) struct = struct("validationFunc",{},"paramNames",{});
@@ -126,7 +126,7 @@ classdef moduleParser < handle
             % parse - Parses the input struct with the module parser based
             % on the input's name value pairs. The parser will check that
             % all required parameters are present and assign default values
-            % to unsuplied optionl parameters. After that, all validation
+            % to unsupplied optional parameters. After that, all validation
             % functions are run on their respective inputs. If the parsing
             % is successful, the Results, UsingDefaults, and Unmatched
             % properties will be populated.
@@ -135,7 +135,7 @@ classdef moduleParser < handle
             % "moduleParser:MissingRequiredInput" exception will be raised.
             % If a parameter (or parameters) fail an input validation
             % function, a "moduleParser:FailedValidation" exception will be
-            % raised. If a validaiton function does not produces an array
+            % raised. If a validation function does not produces an array
             % convertible to logical values, nor is a validation function
             % (no outputs and throws an error on invalid inputs), then a
             % "moduleParser:BadValidationFunction" exception will be
@@ -147,7 +147,7 @@ classdef moduleParser < handle
             % * inputParams: Scalar struct of input parameters to parse.
             % * warnUnusedParams (false): Name value paired optional
             %   argument. When set to true, the user will be warned of any
-            %   unsued parameters from inputParams. All unused parameters
+            %   unused parameters from inputParams. All unused parameters
             %   are listed in the warning message.
             %
             % see also inputParser
@@ -221,7 +221,7 @@ classdef moduleParser < handle
                             throw(newErr);
                         end
                     else
-                        % Error is likely some ill-formed valiation
+                        % Error is likely some ill-formed validation
                         % function.
                         newErr = MException(errIDBadValidation,errMsgBadValidation,...
                             obj.FunctionName, ...
@@ -237,9 +237,9 @@ classdef moduleParser < handle
                     validationResults = all(logical(validationResult),"all");
                 catch err
                     if isequal(err.identifier, "MATLAB:invalidConversion")
-                        % The valdation function couldn't convert the
+                        % The validation function couldn't convert the
                         % output to logical values. The validation
-                        % funcition is ill-formed.
+                        % function is ill-formed.
                         newErr = MException(errIDBadValidation, errMsgBadValidation,...
                             obj.FunctionName, ...
                             strjoin(paramNames,"', '"), ...
@@ -275,7 +275,7 @@ classdef moduleParser < handle
                 % %1 and then completely fail if the underlying function had
                 % %no outputs. Because I want functions that either throw
                 % %errors or output a logical, I have to first run the
-                % %function with no ouputs specified, then if that didn't
+                % %function with no outputs specified, then if that didn't
                 % %throw an error, run it AGAIN to now get the logical return
                 % %back. What a pain.
                 % numOut = nargout(validationFunc);

@@ -1,10 +1,18 @@
 # ignore .mat files
 *.mat
+
 # ignore figures
 *.fig
-*.DS_Store
-# ignore folder for comparision to old software
+*.png
+*.jpg
+*.eps
 
+# Ignore log files
+*.log
+*.out
+
+# Don't know where this is from but it keeps comming up
+*.DS_Store
 
 # Default good practice MATLAB ignores:
 # Windows default autosave extension

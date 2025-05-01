@@ -26,7 +26,7 @@ function [newParams,modParser] = BasicBB84LossyDescriptionFunc(params, options, 
 %   outcome to key bits (May be written with Strings).
 % * krausOps: A cell array of matrices. The Kraus operators that form the G
 %   map on Alice and Bob's joint system. These should form a completely
-%   postive trace non-increasing linear map. Each Kraus operator must be
+%   positive trace non-increasing linear map. Each Kraus operator must be
 %   the same size.
 % * keyProj:  A cell array of projection operators that extract the key
 %   from G(\rho). These projection operators should sum to identity. This
@@ -81,7 +81,7 @@ newParams.dimB = dimB;
 % in source replacement scheme, this is just the maximally mixed state
 newParams.rhoA = eye(dimA)/dimA;
 
-%% joint obserables
+%% joint observables
 %ordered H,V,D,A
 POVMsA = {pz*diag([1,0]),pz*diag([0,1]),(1-pz)*(ketP*ketP'),(1-pz)*(ketM*ketM')};
 probSignalsA = [pz/2,pz/2,(1-pz)/2,(1-pz)/2]; %probability of Alice sending each signal.
@@ -118,7 +118,7 @@ newParams.observablesJoint = observablesJoint;
 % A: Alice's system, B: Bob's System, C: announcement register, R: key
 % register. The Kraus operators are matrices from ABC \rightarrow RBC. We
 % use results from https://arxiv.org/abs/1905.10896 (Appendix A) to shrink
-% the Kraus operators from outputing RABC to just RBC.
+% the Kraus operators from outputting RABC to just RBC.
 
 krausOpZ = pz*kron(diag([1,0])+diag([0,1]),kron(diag([1,1,0]),zket(2,1)));
 krausOpX = (1-pz)*kron(zket(2,1)*ketP'+zket(2,2)*ketM',kron(diag([1,1,0]),zket(2,2)));
@@ -135,7 +135,7 @@ proj0 = kron(diag([1,0]),eye(dimB*2));
 proj1 = kron(diag([0,1]),eye(dimB*2));
 keyProj = {proj0,proj1};
 
-%% set key map, kraus ops, and block diagonal structure in new parameters
+%% set key map, Kraus ops, and block diagonal structure in new parameters
 newParams.krausOps = krausOps;
 newParams.keyProj = keyProj;
 newParams.blockDimsA = 2;

@@ -1,5 +1,5 @@
 function val = areCompatibleSizes(arrays)
-% areCompatibleSize Determines if the input arrays are of compatible size
+% areCompatibleSizes Determines if the input arrays are of compatible size
 % for matlab binary operations. See Matlab's base documentation for more
 % details.
 arguments (Repeating)

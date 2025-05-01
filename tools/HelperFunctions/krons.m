@@ -1,5 +1,5 @@
 function matOut = krons(matrices)
-% krons A simple function to take the kronecker product of multiple
+% krons A simple function to take the Kronecker product of multiple
 % matrices. Must have at least one input.
 %
 % Inputs:

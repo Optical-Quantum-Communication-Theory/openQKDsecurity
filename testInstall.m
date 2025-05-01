@@ -42,11 +42,11 @@ catch err
 end
 
 if QetlabFound
-    % Qetlab version 0.9 and lower has major bugs with using choi matrices.
-    % Unfortunetly, Qetlab has not updated their stable branch on their website
-    % so we have to direct people to their github.
+    % Qetlab version 0.9 and lower has major bugs with using Choi matrices.
+    % Unfortunately, Qetlab has not updated their stable branch on their
+    % website so we have to direct people to their GitHub.
     disp("Checking if Qetlab version is above 0.9")
-    % The choi matrix we use for the test comes from this channel on 2x2 rho.
+    % The Choi matrix we use for the test comes from this channel on 2 x 2 rho.
     % testChannel = @(rho) blkdiag(0.25*rho,0.75*trace(rho));
     testChoiMat = zeros(6,6);
     testChoiMat(1,1) = 0.25;

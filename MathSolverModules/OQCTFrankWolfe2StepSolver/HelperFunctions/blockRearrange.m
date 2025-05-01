@@ -46,10 +46,10 @@ Y = cell(1,numel(a));
 for indexA = 1:numel(a) %indexing over Alice's blocks
     if a(indexA) == 1
         % when a_i ==1, we don't have to permute Bob's systems for this
-        % chunck's max block diagonal structure.
+        % chunk's max block diagonal structure.
         Y{indexA} = 1:dimB;
     else
-        % For Alice's indexAth block we compute the eiquivalent of
+        % For Alice's indexAth block we compute the equivalent of
         % $\text{SWAP}^\dagger_{b_j,a_i}$ for $j=1,\dots,m$ and store them
         % in pi2.
         pi2inv = arrayfun(@(b_j)swapPermInv(b_j,a(indexA)),b,"UniformOutput",false);
@@ -57,7 +57,7 @@ for indexA = 1:numel(a) %indexing over Alice's blocks
         % If we we're computing  $bigoplus_{j=1}^m
         % \text{SWAP}^\dagger_{b_j,a_i}$  directly, then we could just call
         % blkdiag to group them together. However, using the permutation
-        % vectors, we have to be a little more carefull with our indices.
+        % vectors, we have to be a little more careful with our indices.
         % The permCat function will take care of this for us.
         pi2inv = permCat(pi2inv{:});
 
@@ -103,7 +103,7 @@ for index = 1:numel(a)
 end
 end
 
-%% Scott's original (though slightly buggy when the result should be idenity)
+%% Scott's original (though slightly buggy when the result should be identity)
 % function [P, newDims] = blockRearrange(a, b)
 % arguments
 %     a (1,:) {mustBeInteger}

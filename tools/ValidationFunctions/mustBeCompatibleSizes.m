@@ -1,5 +1,5 @@
 function mustBeCompatibleSizes(varargin)
-% MustCompatibleSize Determines if the input arrays are of compatible size
+% mustBeCompatibleSizes Determines if the input arrays are of compatible size
 % for matlab binary operations. Throws the same error as when base Matlab
 % encounters incompatible sizes. See Matlab's base documentation for more
 % details.

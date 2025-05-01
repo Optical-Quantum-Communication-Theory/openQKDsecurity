@@ -17,7 +17,7 @@ function Dfval = primalDfep(perturbation, rho, keyProj, krausOperators,safeCutOf
 %
 % See also primalDf, primalfep, FW2StepSolver
 arguments
-    %minimial checks just to make sure cells are formatted in the correct
+    %minimal checks just to make sure cells are formatted in the correct
     %orientation.
     perturbation (1,1) double {mustBeInRange(perturbation,0,1)}
     rho (:,:) double {mustBeHermitian}
@@ -39,6 +39,6 @@ logZRho = perturbationChannel(logmsafe(zRho,safeCutOff), perturbation);
 %Apply G^\dagger
 Dfval = ApplyMap(logGRho-logZRho,DualMap(krausOperators));
 
-% ensure Dfval is hermitian
+% ensure Dfval is Hermitian
 Dfval = (Dfval+Dfval')/2;
 end

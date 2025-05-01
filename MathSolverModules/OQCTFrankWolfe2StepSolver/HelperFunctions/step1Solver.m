@@ -63,7 +63,7 @@ for iter = 1:options.maxIter
         tstartFW=tic;
     end
     
-    %Caluclate gradient of primal
+    %Calculate gradient of primal
     gradf = primalDf(rho,keyProj,krausOps); % numerator form
 
     %Find step direction
@@ -134,7 +134,7 @@ end
 %% Closest Density Matrix *************************************************
 function [rho, cvxStatus] = closestDensityMatrix(rho0,eqCons,ineqCons,vec1NormCons,mat1NormCons,options)
 
-%Retrieving constarints from params
+%Retrieving constraints from params
 linConTol = options.linearConstraintTolerance;
 
 dim = size(rho0,1);
@@ -255,7 +255,7 @@ rho + deltaRho == hermitian_semidefinite(dim);
 
 cvx_end
 
-% reconstruct rho from blocks incase it didn't get filled in by CVX
+% reconstruct rho from blocks encase it didn't get filled in by CVX
 if options.blockDiagonal
     deltaRho = zeros(dim);
     deltaRhoBlocks = eval(deltaRhoBlocksString);

@@ -3,7 +3,7 @@ function mustBeHermitian(operator)
 % error if the condition is violated.
 %
 % Inputs:
-% * operators: matrix to check if it's hermitian
+% * operators: matrix to check if it's Hermitian
 %
 % See also ishermitian
 if ~ishermitian(operator)

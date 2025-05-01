@@ -32,7 +32,7 @@ classdef QKDSolverInput < handle
 
         % QKDOptimizerModule selected for use in the solver.
         % Only one optimizer module can be given, but the optimizer module
-        % is not requried provided there are no optimizeParameters.
+        % is not required provided there are no optimizeParameters.
         %
         % See also QKDOptimizerModule, setOptimizerModule
         optimizerModule (:,1) QKDOptimizerModule = QKDOptimizerModule.empty(0,1);
@@ -76,6 +76,10 @@ classdef QKDSolverInput < handle
         %
         % See also makeGlobalOptionsParser, setGlobalOptions, QKDOptimizerModule
         globalOptions (1,1) struct;
+    end
+
+    properties(Dependent)
+        totalIterations (1,1) uint64
     end
 
     methods
@@ -143,7 +147,7 @@ classdef QKDSolverInput < handle
             % iteration, unlike scan parameters.
             % name: Name of the parameter. It must follow the parameter
             % naming conventions.
-            % value: the value of the paramter.
+            % value: the value of the parameter.
             %
             % See also fixedParameters, mustFollowParamNamingConvention, removeFixedParameter
             arguments
@@ -241,7 +245,7 @@ classdef QKDSolverInput < handle
         %optimizer
         function setOptimizerModule(obj, optimizerModule)
             % Sets the optimizerModule to be used by the solver.
-            % An optimizerModule is requried only if there are optimizer
+            % An optimizerModule is required only if there are optimizer
             % parameters.
             %optimizerModule: the QKDOptimizerModule to use.
             %
@@ -328,6 +332,16 @@ classdef QKDSolverInput < handle
                 globalOptions (1,1) struct {mustBeGlobalOptions(globalOptions,1)}
             end
             obj.globalOptions = globalOptions;
+        end
+
+        %% getters and setters
+        function numIterations = get.totalIterations(obj)
+            arguments
+                obj (1,1) QKDSolverInput
+            end
+
+            numIterations = prod(uint64(structfun(@numel,obj.scanParameters)),"native");
+
         end
     end
 

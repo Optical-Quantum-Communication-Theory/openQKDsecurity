@@ -5,8 +5,8 @@ classdef QKDMathSolverModule < QKDModule
     % in a description of the G and Z maps, and constraints to determine
     % the minimum relative entropy shared between the key and Eve.
     % Math solver modules have the least amount of room for error in their
-    % development. A math solver module must provide a garunteed lower
-    % bound on the relative entropy, not an aproximate bound. See
+    % development. A math solver module must provide a guaranteed lower
+    % bound on the relative entropy, not an approximate bound. See
     % arXiv:1710.05511 for the basis of one module.
     %
     % QKDMathSolverModule functions must have the following inputs and outputs.
@@ -16,10 +16,10 @@ classdef QKDMathSolverModule < QKDModule
     %   Unlike the parameters that go into other modules, these parameters
     %   should be constructed in the QKDKeyRateModule, then given to the
     %   QKDMathSolverModule. MathSolverModules should be able to handle a
-    %   variety of common inputs. The following are highly recomended:
+    %   variety of common inputs. The following are highly recommended:
     %   * krausOps: A cell array of matrices. The Kraus operators that form
     %     the G map on Alice and Bob's joint system. These should form a
-    %     completely postive trace non-increasing linear map. Each Kraus
+    %     completely positive trace non-increasing linear map. Each Kraus
     %     operator must be the same size.
     %   * keyMap: A cell array of projection operators that extract the key
     %     from G(\rho). These projection operators should sum to identity.
@@ -33,7 +33,7 @@ classdef QKDMathSolverModule < QKDModule
     % * debugInfo: A handle object of Class DebugInfo so that users can
     %   store useful information for testing, and validation purposes.
     % Outputs:
-    % * relEntLowerBound: The lower bound on the relative entorpy between
+    % * relEntLowerBound: The lower bound on the relative entropy between
     %   the key and Eve, given the constraints.
     % * modParser: The module Parser used on params. Currently, they have
     %   little function as an output, but in the future I hope to use them

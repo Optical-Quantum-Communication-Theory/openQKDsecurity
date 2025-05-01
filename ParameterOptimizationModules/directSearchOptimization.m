@@ -5,7 +5,7 @@ function [algKeyRate, optimalParams] = directSearchOptimization(optimizeParams,w
 % given parameter ranges and constraints, as defined in the preset.
 %
 % Input parameters:
-% * optimizeParams: Struct of parmeters to optimize. Each field name is a
+% * optimizeParams: Struct of parameters to optimize. Each field name is a
 %   parameter name, and the value is a struct containing the fields
 %   "initVal", "lowerBound" and "upperBound", which provide the initial
 %   value and search bounds for the corresponding variable.

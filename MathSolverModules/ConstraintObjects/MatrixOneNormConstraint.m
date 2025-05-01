@@ -9,16 +9,16 @@ classdef MatrixOneNormConstraint <BaseConstraint
     % convex constraints with slack variables.
     %
     % Properties:
-    % * choiMatrix: Operator that represents the hermitian preserving
+    % * choiMatrix: Operator that represents the Hermitian preserving
     %   linear map Phi from operators on system X to  operators on system
     %   Y. We assume that the the Choi matrix orders the systems X tensor
-    %   Y. dim(Y) is infered from the property, operator, and this also
+    %   Y. dim(Y) is inferred from the property, operator, and this also
     %   gives enough information to infer dim(X). To ensure dim(X) is an
     %   integer, size(choiMatrix,1) must be divisible by dim(Y). If you
     %   must change both the choiMatrix and operator, use the
     %   setChoiMatrixAndOperator method to update them simultaneously. This
-    %   will prevent system dimension divisibility errors caused by updating
-    %   them one at a time.
+    %   will prevent system dimension divisibility errors caused by
+    %   updating them one at a time.
     % * operator: An operator from the Hermitian operators on system Y. It
     %   offsets the norm ball. To ensure dim(X) is an integer,
     %   size(choiMatrix,1) must be divisible by dim(Y) (size(operator,1)).
@@ -36,7 +36,7 @@ classdef MatrixOneNormConstraint <BaseConstraint
     % See also: BaseConstraint
 
     properties (Hidden =true, Access = protected)
-        theRealChoiMatrix (:,:) double {mustBeNonempty,mustBeFinite,mustBeHermitian} = 0; % real underlying choi matrix
+        theRealChoiMatrix (:,:) double {mustBeNonempty,mustBeFinite,mustBeHermitian} = 0; % real underlying Choi matrix
         theRealOperator (:,:) double {mustBeNonempty,mustBeFinite,mustBeHermitian} = 0; % the real underlying operator
     end
 
@@ -48,7 +48,7 @@ classdef MatrixOneNormConstraint <BaseConstraint
         choiMatrix % Choi matrix for an operator Phi from systems X to Y.
         operator % Hermitian operator on system Y that offsets the norm ball.
         rhoDim % Size of the input system's Hilbert space for this constraint.
-        operatorDim %Size of the hermitian operator on system Y.
+        operatorDim %Size of the Hermitian operator on system Y.
     end
 
     methods
@@ -57,12 +57,12 @@ classdef MatrixOneNormConstraint <BaseConstraint
             % See class description above.
             %
             % Input:
-            % * choiMatrix (0): Operator that represents the hermitian
+            % * choiMatrix (0): Operator that represents the Hermitian
             %   preserving linear map Phi from systems X to Y. The Choi
             %   matrix orders the systems as X tensor Y. The size of system
-            %   Y is taken from the operator and X is infered by dividing
-            %   the size of the choi matrix by the size of the operator.
-            % * operator (0): An operator from the hermitian operators on
+            %   Y is taken from the operator and X is inferred by dividing
+            %   the size of the Choi matrix by the size of the operator.
+            % * operator (0): An operator from the Hermitian operators on
             %   system Y. It offsets the norm ball. When setting the
             %   operator, the size of the new operator matrix must ensure
             %   that the size of the Choi matrix is divisible by the size
@@ -119,18 +119,18 @@ classdef MatrixOneNormConstraint <BaseConstraint
         end
 
         function obj = setChoiMatrixAndOperator(obj,choiMatrix,operator)
-            % Method to change the choi matrix and operator at the same time.
-            % Supports the user changing the choi matrix and operator's
+            % Method to change the Choi matrix and operator at the same time.
+            % Supports the user changing the Choi matrix and operator's
             % sizes so long as the the number of new operators matches the
             % size of the new vector.
             %
             % Inputs:
-            % * choiMatrix (0): Operator that represents the hermitian
+            % * choiMatrix (0): Operator that represents the Hermitian
             %   preserving linear map Phi from systems X to Y. The Choi
             %   matrix orders the systems as X tensor Y. The size of system
-            %   Y is taken from the operator and X is infered by dividing
-            %   the size of the choi matrix by the size of the operator.
-            % * operator (0): An operator from the hermitian operators on
+            %   Y is taken from the operator and X is inferred by dividing
+            %   the size of the Choi matrix by the size of the operator.
+            % * operator (0): An operator from the Hermitian operators on
             %   system Y. It offsets the norm ball. When setting the
             %   operator, the size of the new operator matrix must ensure
             %   that the size of the Choi matrix is divisible by the size
@@ -162,14 +162,14 @@ classdef MatrixOneNormConstraint <BaseConstraint
             %   matrix will then be generated from this map. The dimension
             %   of the input system defaults to the dimension of Y taken
             %   from the operator.
-            % * operator (0): An operator from the hermitian operators on
+            % * operator (0): An operator from the Hermitian operators on
             %   system Y. It offsets the norm ball.
             % * scalar (0): The real non-negative "radius" of the norm
             %   ball. It can be set to inf, though the constraint will do
             %   nothing.
             % * dimInput (size(operator,1)): Size of the input system X
             %   when constructing the Choi matrix. By default, the map is
-            %   assumed to not alter the size of th sytem and dim(Y) from
+            %   assumed to not alter the size of the system and dim(Y) from
             %   the operator is used.
             arguments
                 mapPhi (1,1) function_handle = @(x) x;

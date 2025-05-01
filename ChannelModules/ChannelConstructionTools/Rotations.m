@@ -11,12 +11,12 @@ classdef Rotations
             % polarization coherent states for a rotation about an
             % arbitrary axis. The axis is specified by its polar angle from
             % the Z-axis and its azimuth in the XY-plane. By default, the
-            % angle of rotation is based on rotation around the bloch
+            % angle of rotation is based on rotation around the Bloch
             % sphere (period of 4pi) and not a physical rotation such as a
             % physically rotating a device.
             %
             % Input:
-            % * rotationAngle: Angle rotated by around the bloch sphere
+            % * rotationAngle: Angle rotated by around the Bloch sphere
             %   (period of 4pi).
             % * thetaPolar: angle for the axis of rotation from the
             %   positive Z-axis down (ie. starting from the state H). Must
@@ -49,12 +49,12 @@ classdef Rotations
             % polarization coherent states for a rotation about an
             % arbitrary axis. The axis is specified by its Z (HV), X (DA),
             % and Y (RL) coordinates in that order. By default, the angle
-            % of rotation is based on rotation around the bloch sphere
+            % of rotation is based on rotation around the Bloch sphere
             % (period of 4pi) and not a physical rotation such as a
             % physically rotating a device (period of 2pi).
             %
             % Input:
-            % * rotationAngle: Angle rotated by around the bloch sphere
+            % * rotationAngle: Angle rotated by around the Bloch sphere
             %   (period of 4pi).
             % * axisZXY: Coordinates of the axis of rotation ordered Z
             %   (HV), X (DA), Y(RL). The length of the vector must be 1 up
@@ -84,13 +84,13 @@ classdef Rotations
             % polarization coherent states for a rotation about an
             % arbitrary axis. The axis is specified by its  X (DA), Y (RL),
             % and Z (HV) coordinates in that order. By default, the angle
-            % of rotation is based on rotation around the bloch sphere
+            % of rotation is based on rotation around the Bloch sphere
             % (period of 4pi) and not a physical rotation such as a
             % physically rotating a device (period of 2pi).
             %
             %
             % Input:
-            % * rotationAngle: Angle rotated by around the bloch sphere
+            % * rotationAngle: Angle rotated by around the Bloch sphere
             %   (period of 4pi).
             % * axisXYZ: Coordinates of the axis of rotation ordered  X
             %   (DA), Y(RL), Z (HV). The length of the vector must be 1 up
@@ -135,7 +135,7 @@ classdef Rotations
         function mustBeEuclidianLength(vec,len)
             % Making sure a vector has a certain Euclidean length up to
             % some numerical tolerance.
-            if ~ismembertol(norm(vec),len)
+            if ~equaltol(norm(vec),len)
                 throwAsCaller(MException("Coherent:VectorHasWrongEuclidianLength",...
                     "The vector must be length (Euclidian) %e (within tolerance).",len));
             end

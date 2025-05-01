@@ -36,7 +36,7 @@ else
     basisElement = zeros(dimX,dimX);
 end
 
-% loop and create the choi matrix
+% loop and create the Choi matrix
 for iKet = 1 : dimX
     ketStart = dimY*(iKet-1)+1;
     KetStop = dimY*iKet;

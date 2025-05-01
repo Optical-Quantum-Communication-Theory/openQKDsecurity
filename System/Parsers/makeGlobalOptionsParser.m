@@ -8,7 +8,7 @@ function globalOptionsParser = makeGlobalOptionsParser(FunctionName)
 % * verboseLevel (1): Non-negative integer telling the program how much
 %   information it should display in the command window. 0, minimum; 1
 %   basic information; 2, full details, including CVX output.
-% * errorHandling (2): ErrorHandling object (unit8 or convertable),
+% * errorHandling (2): ErrorHandling object (unit8 or convertible),
 %   detailing how the program should handle run time errors. CatchSilent 1:
 %   catch but don't warn the user and the error message is appended to the
 %   debug info. CatchWarn 2: catch and warn the user. The key rate for the
@@ -31,7 +31,7 @@ arguments
 end
 globalOptionsParser = moduleParser(FunctionName);
 globalOptionsParser.addOptionalParam("cvxSolver","SDPT3",@isStringScalar); %find a way to check against the list of CVX solvers
-globalOptionsParser.addOptionalParam("cvxPrecision","high",@isStringScalar); %find a way to check againts the list of CVX precision levels
+globalOptionsParser.addOptionalParam("cvxPrecision","high",@isStringScalar); %find a way to check against the list of CVX precision levels
 globalOptionsParser.addOptionalParam("verboseLevel",1,@isscalar,@mustBeNonnegative);
 globalOptionsParser.addOptionalParam("errorHandling",ErrorHandling.CatchWarn,@isscalar,@(x)mustBeMember(x,enumeration("ErrorHandling"))); % 1: catch error, but don't warn 2: catch error and warn 3: rethrow error.
 end

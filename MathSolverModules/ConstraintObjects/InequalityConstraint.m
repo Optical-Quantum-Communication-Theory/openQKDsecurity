@@ -1,12 +1,12 @@
 classdef InequalityConstraint < BaseConstraint
     %INEQUALITYCONSTRAINT A simple class to model inequality constraints
-    %for the hilbert space of hermitian operators.
+    %for the hilbert space of Hermitian operators.
     % Constraints are of the form lowerBound <= tr[operator'*rho] <=
     % upperBound, up to some error tolerance. This is a convex constraint.
     %
     % Properties:
-    % * operator: nxn complex Hermitian operator. It must have at least one
-    %   element and finite in value.
+    % * operator: n x n complex Hermitian operator. It must have at least
+    %   one element and finite in value.
     % * bounds: Pair of real numbers that represent the lower and upper
     %   bounds of the inner product. bounds must be ordered lower then
     %   upper. Additionally, the lower bound can be -inf and the upper
@@ -36,8 +36,8 @@ classdef InequalityConstraint < BaseConstraint
             % See class description above.
             %
             % Input:
-            % * operator (0): nxn complex hermitian operator. It must have
-            %   at least one element and finite in value.
+            % * operator (0): n x n complex Hermitian operator. It must
+            %   have at least one element and finite in value.
             % * lowerBound (0): Real value (or -inf) scalar the inner
             %   product must be bounded by. lowerBound <= upperBound.
             % * upperBound (0): real value (or inf) scalar the inner

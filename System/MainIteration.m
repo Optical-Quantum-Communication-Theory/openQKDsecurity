@@ -1,4 +1,4 @@
-function results = MainIteration(qkdSolverInput)
+function results = MainIteration(qkdSolverInput,scanIndexList)
 % MainIteration The main iteration of the QKDSolver.
 % MainIteration parses the QKDSolverInput and controls what initial
 % parameters are set to. There are 3 categories of parameters and the
@@ -7,22 +7,33 @@ function results = MainIteration(qkdSolverInput)
 %   generated for each one.
 % * fixedParameters: These parameters remain the same and are not looped
 %   over.
-% * optimizeParameters: Thse parameters have bounds fixed to them and are
+% * optimizeParameters: These parameters have bounds fixed to them and are
 %   optimized to increase the key rate of the protocol.
 %
 % MainIteration also packages the key rate and debug information from each
 % round and adds them to the structure array results, which it then
 % returns. This function is also in charge of setting up wrapped protocols
-% for optimization modules and exicuting Evaluateprotocol.
+% for optimization modules and executing Evaluateprotocol.
 %
-% qkdSolverInput: A full QKDSolverInput with all required modules. If
-% optimization parameters are given, then a QKDOptimizationModule must also
-% be provided.
+% Inputs:
+% * qkdSolverInput: A full QKDSolverInput with all required modules. If
+%   optimization parameters are given, then a QKDOptimizationModule must
+%   also be provided.
+% * scanIndexList (1:qkdSolverInput.totalIterations): A subset (without
+%   repeats) of the total iteration numbers needed to cover all
+%   combinations of the scan parameters. The input is done through linear
+%   indexing instead of writing the set of indexes for each individual scan
+%   parameter. Useful for breaking down scan parameters into multiple sets
+%   for running on clusters, or for intermittently saving results. We
+%   recommend you save the scanIndexList along side your results struct if
+%   you use a proper subset. Also, to avoid changing the indexing, do not
+%   add or remove scan parameters.
 %
 %
 % See also QKDSolverInput, EvaluateProtocol
 arguments
     qkdSolverInput (1,1) QKDSolverInput {QKDSolverInput.checkQKDSolverInput(qkdSolverInput)}
+    scanIndexList (:,1) uint64 {mustBeSubset(scanIndexList,qkdSolverInput)}= 1:qkdSolverInput.totalIterations;
 end
 
 %extract global options
@@ -38,28 +49,21 @@ scanFields = fieldnames(qkdSolverInput.scanParameters);
 
 haveScanParams = ~isempty(scanFields);
 
+% get the number of elements for each scan parameter, leaves the list empty
+% if there are none.
+scanSize = structfun(@numel,qkdSolverInput.scanParameters);
 
-if haveScanParams
-    % Start by getting the size of each of the scan parameters cell arrays.
-    scanSize = zeros(numel(scanFields),1);
-    for index =1:numel(scanFields)
-        scanSize(index) = numel(qkdSolverInput.scanParameters.(scanFields{index}));
-    end
-    % total number of combinations we need to go through.
-    numIterations = prod(scanSize);
-else
-    numIterations = 1;
-end
-
+numIterations = numel(scanIndexList);
 
 results = struct("debugInfo",cell(numIterations,1),...
     "keyRate",cell(numIterations,1),...
     "currentParams",cell(numIterations,1));
 
 % loop over every combination using ind2subPlus to parse the linear
-% index into the indecies of each scan parameters cell array.
-for scanIndex = 1:numIterations
-
+% index into the indexes of each scan parameters cell array. (or the
+% selected subset from scanIndexList).
+for loopIndex = 1:numIterations
+    scanIndex = scanIndexList(loopIndex);
 
     currentResults = struct();
     currentResults.debugInfo = struct();
@@ -67,7 +71,7 @@ for scanIndex = 1:numIterations
     currentParams = qkdSolverInput.fixedParameters;
 
     if globalOptions.verboseLevel >= 1
-        fprintf("\nIteration %d of %d\n",scanIndex,numIterations)
+        fprintf("\nIteration %d of %d\n",loopIndex,numIterations)
     end
 
     if haveScanParams
@@ -92,7 +96,8 @@ for scanIndex = 1:numIterations
 
 
         if optimizerErrorFlag
-            results(scanIndex) = handleOptimizerErrorResults(optimizerDebugInfo,currentParams,qkdSolverInput.optimizeParameters);
+            results(loopIndex) = handleOptimizerErrorResults(optimizerDebugInfo,...
+                currentParams,qkdSolverInput.optimizeParameters);
             continue
         end
 
@@ -107,7 +112,7 @@ for scanIndex = 1:numIterations
     currentResults.debugInfo = mergeParams(currentResults.debugInfo,tempDebugInfo,false);
     currentResults.currentParams = currentParams;
 
-    results(scanIndex) = currentResults;
+    results(loopIndex) = currentResults;
 end
 
 end
@@ -226,4 +231,21 @@ results.debugInfo.error = optimizerDebugInfo.error;
 optimizerDebugInfo = rmfield(optimizerDebugInfo,"error");
 results.debugInfo.optimizer = optimizerDebugInfo;
 
+end
+
+
+%% function validation
+function mustBeSubset(scanIndexList,qkdSolverInput)
+% checks to make sure the scanIndexList is a subset of
+% 1:qkdSolverInput.totalIterations (the maximum number of iterations needed
+% to loop over all combinations of scan parameters), without repeats.
+if ~(all(ismember(scanIndexList,1:qkdSolverInput.totalIterations),"all") ... % subset
+        && numel(scanIndexList) == numel(unique(scanIndexList))) % unique elements
+
+    % the scan indexes listed are not a subset of the total indexes used
+    % across the scan parameters. This will cause an out of bounds problem
+    throwAsCaller(MException("MainIteration:IllformedScanList",...
+        "The scan list must either be 0 or a subset (without repeats) " + ...
+        "of the total number of iterations needed."));
+end
 end

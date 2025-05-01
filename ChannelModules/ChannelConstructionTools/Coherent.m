@@ -31,7 +31,7 @@ classdef Coherent < Rotations
             % Constructs a 2 mode coherent state to represent polarized
             % light. The orientation of its polarization is given by
             % coordinates on the Bloch sphere which is given by the
-            % poloraization basis and bit value. States are output as a 2d
+            % polarization basis and bit value. States are output as a 2d
             % vector in the Z basis with modes ordered H then V.
             %
             % * complexAmplitude: stores the complex phase and amplitude of
@@ -96,7 +96,7 @@ classdef Coherent < Rotations
         end
 
         function transMat = lossChannel(loss)
-            % A function that constructs the tranition matrix on coherent
+            % A function that constructs the transition matrix on coherent
             % states/annihilation operators when a lossy channel is applied
             % as a function of loss.
             %
@@ -156,8 +156,8 @@ classdef Coherent < Rotations
             % distribution. No global or relative phase shifts are applied
             % to the output modes.
             % 
-            % * probDist: probability distribtion to distribute the beam
-            %   into fractions of the orgininal intensity.
+            % * probDist: probability distribution to distribute the beam
+            %   into fractions of the original intensity.
             arguments
                 probDist (:,1) {mustBeProbDist}
             end
@@ -259,7 +259,7 @@ classdef Coherent < Rotations
 
         function val = fockCoherentInnerProduct(fockStates,coherentStates,options)
             % Computes the inner product between a set of Fock states and
-            % coherent states. The Fock states recieve the complex
+            % coherent states. The Fock states receive the complex
             % conjugate. <fockStates|coherentStates>.
             %
             % * fockStates: An nd array of non-negative integers that

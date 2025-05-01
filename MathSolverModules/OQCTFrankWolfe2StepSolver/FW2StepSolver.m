@@ -6,7 +6,7 @@ function [relEntLowerBound,modParser] = FW2StepSolver(params,options,debugInfo)
 % of the problem. Step 2 of the solver uses the linearization at solution
 % of step 1 (the final iteration) and solves the dual at this point. While
 % also taking into account for constraint violations, due to numerical
-% imprecission, step 2 produces a valid lower bound on the relative
+% imprecision, step 2 produces a valid lower bound on the relative
 % entropy. See "Reliable numerical key rates for quantum key distribution",
 % https://quantum-journal.org/papers/q-2018-07-26-77/, for more details.
 %
@@ -30,8 +30,8 @@ function [relEntLowerBound,modParser] = FW2StepSolver(params,options,debugInfo)
 %   used in the finite-size analysis.
 % * matrixOneNormConstraints (MatrixOneNormConstraint.empty(0,1)): Array of
 %   class MatrixOneNormConstraints. Represents constraints of the form
-%   ||Phi(rho) - operator||_1 <= scalar, where Phi is a hermitian
-%   preserving superoperator and operator is a hermitian operator and the
+%   ||Phi(rho) - operator||_1 <= scalar, where Phi is a Hermitian
+%   preserving superoperator and operator is a Hermitian operator and the
 %   norm is the trace norm.
 % * blockDimsA: If the blockDiagonal option is true, this is a list that
 %   holds the numbers of dimensions of each block of Alice's system.
@@ -55,10 +55,10 @@ function [relEntLowerBound,modParser] = FW2StepSolver(params,options,debugInfo)
 % * verboseLevel (global option): See makeGlobalOptionsParser for details.
 % * maxIter (20): maximum number of Frank Wolfe iteration steps taken to
 %   minimize the relative entropy.
-% * maxGap (1e-6): Exit condition for the Frank Wolfe algithm. When the
+% * maxGap (1e-6): Exit condition for the Frank Wolfe algorithm. When the
 %   relative gap between the current and previous iteration is small
-%   enough, the Frank wolfe algorithm exits and returns the current point.
-%   The gap must be a postive scalar.
+%   enough, the Frank Wolfe algorithm exits and returns the current point.
+%   The gap must be a positive scalar.
 % * linearSearchPrecision (1e-20): Precision the fminbnd tries to achieve
 %   when searching along the line between the current point and the points
 %   along the gradient line. See fminbnd and optimset for more details.
@@ -84,7 +84,7 @@ function [relEntLowerBound,modParser] = FW2StepSolver(params,options,debugInfo)
 
 % DebugInfo:
 % * relEntStep1: Value of the relative entropy achieved during the
-%   Frank-Wolfe aproximate minimization. It can help with determining if
+%   Frank-Wolfe approximate minimization. It can help with determining if
 %   Frank-Wolfe could not converge, or just barely converges.
 % * relEntStep2Linearization: The relative entropy at the start of the
 %   linearization routine used for step 2. The initial point may be

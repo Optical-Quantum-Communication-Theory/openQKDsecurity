@@ -58,7 +58,7 @@ gRho = ApplyMap(rho, krausOps);
 zRho = ApplyMap(gRho, keyProj);
 
 rangeTop = max(lambda_max(gRho),lambda_max(zRho));
-safeCutOff = rangeTop*1e-14; % 1e-14 choosen because its small but still stable. 10e-15 breaks down.
+safeCutOff = rangeTop*1e-14; % 1e-14 chosen because its small but still stable. 10e-15 breaks down.
 
 epsilonG = perturbationChannelEpsilon(gRho,safeCutOff,"step2Enhancement",true);
 epsilonZ = perturbationChannelEpsilon(zRho,safeCutOff,"step2Enhancement",true);
@@ -213,7 +213,7 @@ if nMat1NormCons > 0
         objective = objective + trace(mat1NormCons(indexCon).operator*u4Set{indexCon})...
             - z4(indexCon)*(mat1NormCons(indexCon).scalar + tolMat1Norm);
             
-        %get the dual map in choi form and apply it.
+        %get the dual map in Choi form and apply it.
         gradfCondition = gradfCondition + ApplyMap(u4Set{indexCon}, DualMap(choiMat,[dimAB,operatorDim]));
     end
 end
@@ -226,10 +226,10 @@ cvx_end
 lowerbound = cvx_optval;
 
 % Removing till we solve 3 things:
-% # We resently learned that CVX may not update implicit and explicit
-% expression varibles after cvx_end. This could be throwing off the
+% # We recently learned that CVX may not update implicit and explicit
+% expression variables after cvx_end. This could be throwing off the
 % gradfCondition check, the most important one.
-% # We don't have a good way of interpretting what the constraint
+% # We don't have a good way of interpreting what the constraint
 % violations mean in terms of how they impact the results.
 % # We don't have a good way of associating a constraint violation with an
 % exact constraint, meaning that anyone trying to read them has no clue

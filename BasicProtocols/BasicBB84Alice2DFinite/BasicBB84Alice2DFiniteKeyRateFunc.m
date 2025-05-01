@@ -14,39 +14,43 @@ function [keyRate, modParser, debugInfo] = BasicBB84Alice2DFiniteKeyRateFunc(par
 %   outcome to key bits (May be written with Strings).
 % * krausOps: A cell array of matrices. The Kraus operators that form the G
 %   map on Alice and Bob's joint system. These should form a completely
-%   postive trace non-increasing linear map. Each Kraus operator must be
+%   positive trace non-increasing linear map. Each Kraus operator must be
 %   the same size.
 % * keyProj:  A cell array of projection operators that perform the pinching map 
 %   key on  G(\rho). These projection operators should sum to identity.
-% * fEC: error correction effiency. Set to 1 means for Shannon limit. 
+% * fEC: error correction efficiency. Set to 1 means for Shannon limit. 
 % * observablesJoint: The joint observables of Alice and Bob's
-%   measurments. The observables must be hermitian and each must be the size 
-%   dimA*dimB by dimA*dimB. The observables assume the spaces are ordered A \otimes B.
-%   They also should be positive semi-definite and should sum to identity. 
+%   measurements. The observables must be Hermitian and each must be the
+%   size dimA*dimB by dimA*dimB. The observables assume the spaces are
+%   ordered A \otimes B. They also should be positive semi-definite and
+%   should sum to identity.
 % * expectationsJoint: The joint expectations (as an array) from Alice and
 %   Bob's measurements that line up with it's corresponding observable in
-%   observablesJoint. These values should be betwen 0 and 1.
+%   observablesJoint. These values should be between 0 and 1.
 % * rhoA (nan): The fixed known density matrix on Alice's side for
 %   prepare-and-measure protocols.
-% * epsilonPA : epsilon for privacy amplification.
-% * epsilonAT : epsilon for acceptance test.
-% * epsilonEC : epsilon for error-verification.
-% * epsilonBar : epsilon for smoothing.
-% * numSignals : total number of signals sent.
-% * pTest : pTest*numSignals is the number of signals used for testing
-% * tExp : finite-size parameter determining the size of the acceptance
+% * epsilonPA: epsilon for privacy amplification.
+% * epsilonAT: epsilon for acceptance test.
+% * epsilonEC: epsilon for error-verification.
+% * epsilonBar: epsilon for smoothing.
+% * numSignals: total number of signals sent.
+% * pTest: pTest*numSignals is the number of signals used for testing
+% * tExp: finite-size parameter determining the size of the acceptance
 %   set.
 
 % Outputs:
 % * keyrate: Key rate of the QKD protocol.
+%
 % Options:
 % * verboseLevel: (global option) See makeGlobalOptionsParser for details.
 % * errorHandling: (global option) See makeGlobalOptionsParser for details.
+%
 % DebugInfo:
-% * relEnt : The computed lower bound on the relative entropy.
-% * keyRateRelEntStep2Linearization : The relative entropy at the
-% linearization point.
-% See also QKDKeyRateModule, PM46DescriptionFunc, makeGlobalOptionsParser
+% * relEnt: The computed lower bound on the relative entropy.
+% * keyRateRelEntStep2Linearization: The relative entropy at the
+%   linearization point.
+%
+% See also QKDKeyRateModule, makeGlobalOptionsParser
 arguments
     params (1,1) struct
     options (1,1) struct

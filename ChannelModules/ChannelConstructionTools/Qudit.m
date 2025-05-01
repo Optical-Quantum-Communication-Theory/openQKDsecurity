@@ -1,7 +1,7 @@
 classdef Qudit < Rotations
     % QUDIT A small collection of tools to help automate work with qudit
     % based channels. Covers common channels/Choi matrices/unitary
-    % operators for rotations, depolarization and tranmittance.
+    % operators for rotations, depolarization and transmittance.
     %
     % See also: Rotations, Coherent
     methods (Static)
@@ -19,7 +19,7 @@ classdef Qudit < Rotations
             % * dim: dimension for size of matrix this should act on.
             % * depol: The amount of depolarization applied to the signal
             %   Alice sends to Bob. At maximum depolarization
-            %   (depolariztion =1) a pure qubit state is converted to a
+            %   (depolarization =1) a pure qubit state is converted to a
             %   maximally mixed state. Depolarization should be between 0
             %   and 1.
             %
@@ -37,7 +37,7 @@ classdef Qudit < Rotations
             % Constructs the Choi matrix for a lossy qudit channel.
             % The (default) transmittance channel is given by:
             % Phi(rho) = blkdiag(transmittance*rho,
-            %  (1-tranmittance)*trace(rho)).
+            %  (1-transmittance)*trace(rho)).
             % 
             % Input:
             % * transmittance: Fraction of signal that is not lost. Must be
@@ -47,7 +47,7 @@ classdef Qudit < Rotations
             % * lossDim (dim+1): Integer between 0 and dim+1 (inclusive).
             %   It controls which dimension the channel places the loss
             %   into. If lossDim ==0, then a new dimension is appended to
-            %   the begining of the state. Similarly, if lossDim == dim+1,
+            %   the beginning of the state. Similarly, if lossDim == dim+1,
             %   then a new dimension for loss is appended to the end of the
             %   state. Otherwise, the loss is added to
             %   rho(lossDim,lossDim).
@@ -76,10 +76,10 @@ classdef Qudit < Rotations
             % have the opposite convention for max depolarization.
             % 
             % Input:
-            % * rho: Square matrix to apply depolariation to.
+            % * rho: Square matrix to apply depolarization to.
             % * depol: The amount of depolarization applied to the signal
             %   Alice sends to Bob. At maximum depolarization
-            %   (depolariztion =1) a pure qubit state is converted to a
+            %   (depolarization =1) a pure qubit state is converted to a
             %   maximally mixed state. Depolarization should be between 0
             %   and 1.
             %
@@ -96,18 +96,18 @@ classdef Qudit < Rotations
             % Implements a lossy qudit channel.
             % The (default) transmittance channel is given by:
             % Phi(rho) = blkdiag(transmittance*rho,
-            %  (1-tranmittance)*trace(rho)).
+            %  (1-transmittance)*trace(rho)).
             % 
             % Input:
             % * rho: Square matrix acted on by the channel
             % * transmittance: Fraction of signal that is not lost. Must be
             %   between 0 and 1.
-            % * lossDim (size(rho,1)+1): Integer between 0 and dim+1 (inclusive).
-            %   It controls which dimension the channel places the loss
-            %   into. If lossDim ==0, then a new dimension is appended to
-            %   the begining of the state. Similarly, if lossDim ==
-            %   size(rho,1)+1, then a new dimension for loss is appended to
-            %   the end of the state.
+            % * lossDim (size(rho,1)+1): Integer between 0 and dim+1
+            %   (inclusive). It controls which dimension the channel places
+            %   the loss into. If lossDim ==0, then a new dimension is
+            %   appended to the beginning of the state. Similarly, if
+            %   lossDim == size(rho,1)+1, then a new dimension for loss is
+            %   appended to the end of the state.
             % * makeSparse (true): If true the Choi Matrix is computed
             %   using sparse matrices. Otherwise, a full matrix is used.
             %
@@ -121,11 +121,11 @@ classdef Qudit < Rotations
         end
 
         function rho = rotationZXYChannel(rho,rotationAngle,axisZXY,options)
-            % Implements a channel that rotates the input state arround the
+            % Implements a channel that rotates the input state around the
             % given axis on the Bloch sphere. The axis is specified by its
             % Z (HV), X (DA), and Y (RL) coordinates in that order. By
             % default, the angle of rotation is based on rotation around
-            % the bloch sphere (period of 4pi) and not a physical rotation
+            % the Bloch sphere (period of 4pi) and not a physical rotation
             % such as a physically rotating a device (period of 2pi).
             %
             % If instead you need the Kraus operators, use
@@ -133,7 +133,7 @@ classdef Qudit < Rotations
             % Rotations.rotateStateZXY) and place it into a 1x1 cell array.
             %
             % Input:
-            % * rotationAngle: Angle rotated by around the bloch sphere
+            % * rotationAngle: Angle rotated by around the Bloch sphere
             %   (period of 4pi).
             % * axisZXY: Coordinates of the axis of rotation ordered Z
             %   (HV), X (DA), Y(RL). The length of the vector must be 1 up
@@ -161,11 +161,11 @@ classdef Qudit < Rotations
             % This behaves the same as Rotations.rotationZXYChannel but
             % with the a permuted axis order.
             %
-            % Implements a channel that rotates the input state arround the
+            % Implements a channel that rotates the input state around the
             % given axis on the Bloch sphere. The axis is specified by its
             % X (DA), Y (RL), and Z (HV) coordinates in that order. By
             % default, the angle of rotation is based on rotation around
-            % the bloch sphere (period of 4pi) and not a physical rotation
+            % the Bloch sphere (period of 4pi) and not a physical rotation
             % such as a physically rotating a device (period of 2pi).
             %
             % If instead you need the Kraus operators, use
@@ -173,7 +173,7 @@ classdef Qudit < Rotations
             % Rotations.rotateStateXYZ) and place it into a 1x1 cell array.
             %
             % Input:
-            % * rotationAngle: Angle rotated by around the bloch sphere
+            % * rotationAngle: Angle rotated by around the Bloch sphere
             %   (period of 4pi).
             % * axisXYZ: Coordinates of the axis of rotation ordered X
             %   (DA), Y(RL), Z (HV). The length of the vector must be 1 up
@@ -203,8 +203,9 @@ classdef Qudit < Rotations
     %% static internal methods for faster evaluation and validation
     methods (Static, Access = protected)
         function rho = transmittanceChannelInternal(rho,transmittance,lossDim)
-            % The transmittance channel with the checks stripped out so we can run it
-            % faster when we need to construct a choi matrix out of it.
+            % The transmittance channel with the checks stripped out so we
+            % can run it faster when we need to construct a Choi matrix out
+            % of it.
             trRho = trace(rho);
             switch lossDim
                 case 0

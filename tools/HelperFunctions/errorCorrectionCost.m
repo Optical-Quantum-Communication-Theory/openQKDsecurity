@@ -2,7 +2,7 @@ function [deltaLeak,gains] = errorCorrectionCost(announcementsA,announcementsB,j
 % ERRORCORRECTIONCOST A function to help automate the calculation of the
 % error correction cost ($\delta_\text{leak}$) For a broad range of
 % protocols. For each pair of accepted announcements, ERRORCORRECTIONCOST
-% computes the probability of giving the announcement (often refured to as
+% computes the probability of giving the announcement (often referred to as
 % gain), conditions the expectation values on the measurement, then applies
 % the key map. For direct reconciliation, Alice sets the key and Bob
 % corrects his side to it. For a given pair of announcements, alpha and
@@ -24,18 +24,18 @@ function [deltaLeak,gains] = errorCorrectionCost(announcementsA,announcementsB,j
 %   measurements down, and Bob's POVM measurements across. The table should
 %   also be sorted such that it has a consistent order for POVM elements
 %   with announcementA, announcementsB, and each keyAssignment with in the
-%   keyMap. The announcements should form a valid probability distrubtion
+%   keyMap. The announcements should form a valid probability distribution
 %   (each element is non negative and sums to 1).
 % * keyMap: An array of KeyMapElement objects that represents all accepted
 %   announcement pairs along with an assignment (one per announcement pair)
 %   to take Alice's (or Bob's for reverse) POVM measurement outcomes to the
 %   key bits (or dits). Each accepted announcement pair must be an element
-%   from the cartisian product of Alice and Bob's announcements. For direct
-%   reconcilitation (reverse), the number of elements in each key
+%   from the cartesian product of Alice and Bob's announcements. For direct
+%   reconciliation (reverse), the number of elements in each key
 %   assignment must match with the number of elements in announcementsA
 %   (announcementsB).
-% * fEC: Error correction effiency. It 1 means we are correcting at the
-%   Shannon limit. A more practicle value would be around 1.16.
+% * fEC: Error correction efficiency. It 1 means we are correcting at the
+%   Shannon limit. A more practical value would be around 1.16.
 % * reverseReconciliation (false): Logical value to determine if we switch
 %   from direct reconciliation where Alice set the key, to reverse
 %   reconciliation where Bob sets the key.
@@ -48,7 +48,7 @@ arguments
     reverseReconciliation (1,1) logical = false;
 end
 % Quickly validate that each individual key map is the correct length as
-% Alice, or in reverse reconcilation, Bob. Can't put in the arguments
+% Alice, or in reverse reconciliation, Bob. Can't put in the arguments
 % block due to limitations.
 mustBeValidKeyMapping(keyMap,jointExpectations,reverseReconciliation);
 
@@ -73,7 +73,7 @@ for indexPair = 1:numPairs
 
     if reverseReconciliation
         % Basically the same as the case for Alice bellow except we have to
-        % use Bob's indicies and transpose the conditioned expectation
+        % use Bob's indices and transpose the conditioned expectation
         % values.
         [uniqueElements,~,uniqueIndicies] = unique(keyMap(indexPair).keyAssignment(indiciesB));
         conExps{indexPair} = zket(numel(uniqueElements),uniqueIndicies)*tempConExp.';
@@ -99,7 +99,7 @@ if size(announcementPairs,1) ~= size(unique(announcementPairs,"rows"),1)
     throwAsCaller(MException("ErrorCorrectionAndSifting:announcementPairsMustBeUnique",...
         "The announcement pairs must have unqiue rows."));
 end
-% Make sure it is part of the subset of the cartisian product
+% Make sure it is part of the subset of the cartesian product
 if ~all(ismember(announcementPairs(:,1),announcementsA)) || ~all(ismember(announcementPairs(:,2),announcementsB))
     throwAsCaller(MException("ErrorCorrectionCost:announcemetPairsAreNotASubset",...
         "The announcement pairs are not a subset of the cartesian product of Alice and Bob's announcements."))

@@ -1,13 +1,13 @@
 function [newParams, modParser]= BasicBB84LossyChannelFunc(params,options, debugInfo)
 % BasicBB84LossyChannelFunc A channel function for qubit BB84 with loss.
-% Here, Schmidt decomposition was used to shrink Alice from a 4d space to a
-% 2d space.
+% Here, Schmidt decomposition was used to shrink Alice from a 4D space to a
+% 2D space.
 % 
 % Input parameters:
 % * dimA: dimension of Alice's system.
 % * dimB: dimension of Bob's system.
 % * observablesJoint: The joint observables from Alice and Bob's
-%   measurements. The observables must be hermitian and each must be the
+%   measurements. The observables must be Hermitian and each must be the
 %   size dimA*dimB by dimA*dimB. The observables assume the spaces are
 %   ordered A \otimes B. They also should be positive semi-definite and
 %   should sum to identity, but this is hard to check because of machine
@@ -15,7 +15,7 @@ function [newParams, modParser]= BasicBB84LossyChannelFunc(params,options, debug
 % * transmittance (1): the transmissivity of the quantum channel. Must be
 %   between 0 and 1 inclusive.
 % * depolarization (0): The amount of depolarization applied to the signal
-%   Alice sends to Bob. At maximum depolarization (depolariztion =1) a pure
+%   Alice sends to Bob. At maximum depolarization (depolarization =1) a pure
 %   qubit state is converted to a maximally mixed state. Depolarization
 %   should be between 0 and 1.
 % * misalignmentAngle (0): Physical angle of misalignment between Alice and
@@ -31,7 +31,7 @@ function [newParams, modParser]= BasicBB84LossyChannelFunc(params,options, debug
 % * none
 % DebugInfo:
 % * rhoAB: Alice and Bob's shared density matrix after the channel has
-%   acted on it. Usefull for checking the channel has been applied
+%   acted on it. Useful for checking the channel has been applied
 %   correctly.
 %
 % Reviewed by Devashish Tupkary 2023/09/18

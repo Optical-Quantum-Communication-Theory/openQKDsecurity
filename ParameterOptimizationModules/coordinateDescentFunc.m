@@ -1,11 +1,11 @@
 function [previousKeyRate, optimalParams] = coordinateDescentFunc(optimizeParams,wrappedProtocol,options,debugInfo)
-% COORDINATEDESCENTFUNC Optimizes a protocol using a coordinate decsent
+% COORDINATEDESCENTFUNC Optimizes a protocol using a coordinate descent
 % algorithm. Given a protocol with parameters flagged for optimization,
 % this function will use coordinate descent to maximize key rate within the
 % given parameter ranges, as defined in the preset.
 %
 % Input parameters:
-% * optimizeParams: Struct of parmeters to optimize. Each field name is a
+% * optimizeParams: Struct of parameters to optimize. Each field name is a
 %   parameter name, and the value is a struct containing the fields
 %   "initVal", "lowerBound" and "upperBound", which provide the initial
 %   value and search bounds for the corresponding variable.
@@ -14,10 +14,10 @@ function [previousKeyRate, optimalParams] = coordinateDescentFunc(optimizeParams
 %   computes the key rate
 % Output:
 % * optimalKeyRate: Estimation of the maximum key rate achievable after
-%   optomizing the optimizeParameters using the optimizerOverride option
+%   optimizing the optimizeParameters using the optimizerOverride option
 %   for each module instead of the regular options.
-% * optimalParams: parameters that achievethe estimated of the maximum key
-%   rate achievable after optomizing the optimizeParameters using the
+% * optimalParams: parameters that achieve the estimated of the maximum key
+%   rate achievable after optimizing the optimizeParameters using the
 %   optimizerOverride option for each module instead of the regular
 %   options.
 % Options:

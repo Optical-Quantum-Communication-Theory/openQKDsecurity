@@ -4,7 +4,7 @@ classdef QKDKeyRateModule < QKDModule
     % QKDKeyRateModules (in combination with QKDDescritptionModules)
     % contain the QKD proof techniques to safely calculate a key rate. As
     % such, these files should not be modified unless the user is familiar
-    % with the realtive entropy picture of QKD. QKDKeyRateModules work
+    % with the relative entropy picture of QKD. QKDKeyRateModules work
     % closely with QKDMathSolverModules and a QKDKeyRateModule is
     % responsible for handling the input and output of the provided
     % QKDMathSOlverModule.
@@ -17,7 +17,7 @@ classdef QKDKeyRateModule < QKDModule
     %   function. Best practice to use a options parser from
     %   makeGlobalOptionsParser, then add any extra options on top of that.
     % * mathSolverFunc: The function from the used QKDMathSolverModule.
-    %   This way an estimate on the relative entorpy can be calculated.
+    %   This way an estimate on the relative entropy can be calculated.
     % * debugInfo: A handle object of Class DebugInfo so that users can
     %   store useful information for testing, and validation purposes.
     % Outputs:

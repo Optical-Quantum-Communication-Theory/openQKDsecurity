@@ -1,5 +1,5 @@
 classdef ErrorHandling < uint8
-    % ErrorHandling A simple class to help automate cataloguing of errors
+    % ErrorHandling A simple class to help automate cataloging of errors
     % between multiple runs of main iteration.
     enumeration
         CatchSilent (0x1u8) % 1: catch error, but don't warn the user.
@@ -12,7 +12,7 @@ classdef ErrorHandling < uint8
             % errorHandling A simple function that is used to automate some
             % of the error handling process. When the errorHandling method
             % is called from a catch block, it will determine what happens
-            % to the error it recieved. It can do one of 3 things:
+            % to the error it received. It can do one of 3 things:
             %
             % * CatchSilent 1: Catch the error but don't warn the user. 
             %   Useful when you're running a large set of data and you know

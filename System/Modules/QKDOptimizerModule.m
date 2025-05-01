@@ -11,22 +11,24 @@ classdef QKDOptimizerModule < QKDModule
     % 
     % QKDOptimizerModules also require a wrapped version of the protocol
     % that takes only a list of parameters as inputs. When a
-    % QKDOptimizerModule runs the wrapped protocol, it overides the
+    % QKDOptimizerModule runs the wrapped protocol, it overrides the
     % globalOptions with optimizerOverrideGlobalOptions, and each module
     % overrides its own options with their provided
     % optimizerOverrideOptions. This way optimization steps can be tweaked
     % to take less time per iteration, run silently, etc. without having to
     % change the usual options.
     %
-    % QKDOptimizerModule functions must have the following inputs and outputs.
+    % QKDOptimizerModule functions must have the following inputs and
+    % outputs.
+    %
     % Inputs:
     % * optimizeParams: Structure with fields given by the names of
     %   parameters to optimize over. Each value is a structure which
-    %   contains the name value pairs requested by the optimzer module's
+    %   contains the name value pairs requested by the optimizer module's
     %   function.
     % * wrappedProtocol: A fully wrapped version of the protocol for
     %   evaluation. The wrapped protocol should only require a structure of
-    %   name value pairs of optimiztation parameters and the value to test
+    %   name value pairs of optimization parameters and the value to test
     %   them on.
     % * options: The coordinate descent function's own options. These are
     %   overwrite options from the QKDSolverInput's globalOptions. Note,
@@ -35,7 +37,7 @@ classdef QKDOptimizerModule < QKDModule
     %   store useful information for testing, and validation purposes.
     % Output:
     % * optimalkeyRate: An estimation of the optimal key rate using the
-    %   overriden options.
+    %   overridden options.
     % * optimalParams: Structure containing the name value pairs of the
     %   estimated optimal parameter inputs.
     %
@@ -52,7 +54,7 @@ classdef QKDOptimizerModule < QKDModule
     methods
         function obj = QKDOptimizerModule(modulefunction,options,optimizerOverrideGlobalOptions)
             % Constructor for QKDOptimizerModules. Deviates from QKDModule constructor.
-            % modulefunction: The function handle for the optimziation
+            % modulefunction: The function handle for the optimization
             % function.
             % options: Structure containing module's associated technical
             % options. These will override any given global options.

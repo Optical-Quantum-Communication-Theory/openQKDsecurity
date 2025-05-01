@@ -8,7 +8,7 @@ classdef VectorOneNormConstraint < BaseConstraint
     % converted to convex constraints with slack variables.
     %
     % Properties:
-    % * operators: cell array of k, nxn complex Hermitian operators with
+    % * operators: cell array of k, n x n complex Hermitian operators with
     %   which the inner product with rho is taken. It must have at least
     %   one element. n must be a minimum of 1 and each entry must be the
     %   the same size. You cannot change the number of operators unless you
@@ -35,7 +35,7 @@ classdef VectorOneNormConstraint < BaseConstraint
     end
 
     properties (Dependent = true)
-        operators % cell array of k,nxn complex hermitian matrices that are inner produced with rho.
+        operators % cell array of k,n x n complex Hermitian matrices that are inner produced with rho.
         vector % A vector from R^k which offsets the norm ball.
         rhoDim % Size of the input system's hilbert space for this constraint.
     end
@@ -46,12 +46,12 @@ classdef VectorOneNormConstraint < BaseConstraint
             % See class description above.
             %
             % Input:
-            % * operators {0}: cell array of k, nxn complex Hermitian operators with
-            %   which the inner product with rho is taken. It must have at least
-            %   one element. n must be a minimum of 1 and each entry must be the
-            %   the same size. You cannot change the number of operators unless you
-            %   set the vector at the same time with the setOperatorsAndVector
-            %   method.
+            % * operators {0}: cell array of k, n x n complex Hermitian
+            %   operators with which the inner product with rho is taken.
+            %   It must have at least one element. n must be a minimum of 1
+            %   and each entry must be the the same size. You cannot change
+            %   the number of operators unless you set the vector at the
+            %   same time with the setOperatorsAndVector method.
             % * vector (0): A vector from R^k which offsets the norm ball.
             %   You cannot change the size of the vectors unless you set
             %   the vector at the same time with the setOperatorsAndVector
@@ -105,10 +105,10 @@ classdef VectorOneNormConstraint < BaseConstraint
             % matches the size of the new vector. 
             %
             % inputs:
-            % * operators:  cell array of k, nxn complex hermitian operator
-            %   that are inner produced with rho. It must have at least one
-            %   element. n must be a minimum of 1 and each entry must be
-            %   the the same size.
+            % * operators:  cell array of k, n x n complex Hermitian
+            %   operator that are inner produced with rho. It must have at
+            %   least one element. n must be a minimum of 1 and each entry
+            %   must be the the same size.
             % * vector: A vector from R^k which offsets the norm ball.
             arguments
                 obj VectorOneNormConstraint

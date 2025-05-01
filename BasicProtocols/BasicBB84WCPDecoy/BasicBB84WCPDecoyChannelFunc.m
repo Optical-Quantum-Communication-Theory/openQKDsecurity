@@ -1,10 +1,10 @@
 function [newParams, modParser]= BasicBB84WCPDecoyChannelFunc(params,options,debugInfo)
 % BasicBB84WCPDecoyChannelFunc A channel function for BB84 using WCP
 % states, supporting decoy intensities. Given a collection of decoy
-% intensities, this channel produces a group of 4x16 tables of
+% intensities, this channel produces a group of 4 x 16 tables of
 % expectations, one for each decoy intensity, which are the conditional
 % probability for each of Bob's 16 detector patterns given Alice's signal
-% sent (and the decoy intenisty).
+% sent (and the decoy intensity).
 %
 % Input parameters:
 % * decoys: a cell of the intensities used in decoy analysis. These are the
@@ -16,11 +16,11 @@ function [newParams, modParser]= BasicBB84WCPDecoyChannelFunc(params,options,deb
 % * detectorEfficiency (1): the efficiency of Bob's detectors. Must be
 %   between 0 and 1 inclusive.
 % * misalignmentAngle (0):  Physical angle of misalignment between Alice
-%   and Bob's measurements around Y axix. This angle is measured as the
+%   and Bob's measurements around Y axis. This angle is measured as the
 %   physical rotation of the device (period 2pi). Although calculations are
 %   done on the Bloch sphere, angles should not be given in that form
 %   (period 4pi).
-% * darkCountRate (0): The probability that a detector that recieves no
+% * darkCountRate (0): The probability that a detector that receives no
 %   photons will still randomly click anyway. Must be between 0 and 1.
 % Output parameters:
 % * expectationsConditional: The conditional expectations (as a 3D array)
@@ -32,8 +32,8 @@ function [newParams, modParser]= BasicBB84WCPDecoyChannelFunc(params,options,deb
 % Options:
 % * None.
 % DebugInfo:
-% * transMat: The linear operator that trasforms the mode operators from
-%   what Alice sent, to what Bob recieves. This includes Bob's detector
+% * transMat: The linear operator that transforms the mode operators from
+%   what Alice sent, to what Bob receives. This includes Bob's detector
 %   setup, except for the non-linear dark counts. See Coherent for more
 %   details.
 % * probDetectorClickCon: The probability of each individual detector
@@ -72,11 +72,11 @@ modParser.addOptionalParam("transmittance", 1, ...
 modParser.addOptionalParam("detectorEfficiency", 1, ...
     @isscalar, ...
     @(x) mustBeInRange(x, 0, 1));
-%Misalingment angle
+%Misalignment angle
 modParser.addOptionalParam("misalignmentAngle",0, ...
     @isscalar, ...
     @mustBeReal);
-%Darkcount rate
+%Dark count rate
 modParser.addOptionalParam("darkCountRate", 0, ...
     @iscolumn, ...
     @(x) mustBeInRange(x, 0, 1));
@@ -126,7 +126,7 @@ end
 
 function transMat = simpleBB84LinearOpticsSetup(transmittance,misalignmentAngle,detectorEfficiency,pz)
 
-%% construct channel transition marix
+%% construct channel transition matrix
 %loss/transmittance
 channelMat = Coherent.copyChannel(Coherent.transmittanceChannel(transmittance),2);
 
@@ -139,7 +139,7 @@ channelMat = Coherent.rotateStateZXY(misalignmentAngle,[0,0,1],"angleOnBlochSphe
 % start.
 detectorMat = Coherent.copyChannel(Coherent.transmittanceChannel(detectorEfficiency),2);
 
-% Bob applies a beam splitter to send signals to each detector basis setup
+% Bob applies a beams splitter to send signals to each detector basis setup
 detectorMat = Coherent.copyChannel(Coherent.singleInputBeamSplitter(pz),...
     2,"weaveCopies",true)*detectorMat;
 

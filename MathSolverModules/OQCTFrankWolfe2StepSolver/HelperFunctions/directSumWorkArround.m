@@ -2,23 +2,25 @@ function rhoCVX = directSumWorkArround(rhoCVX,rhoBlocks)
 % CVX's has a bug with blkdiag, so we had to write our own work around.
 % This manually builds the direct sum by placing the blocks on the
 % diagonal.
-% Works only for square nxn matrices!
+%
+% Works only for square n x n matrices!
+%
 % Inputs:
-% * rhoCVX: nxn matrix defined by CVX
+% * rhoCVX: n x n matrix defined by CVX
 % * rhoBlocks: cell array containing the individual block matrices, such
-%              that directsum_i rhoBlocks{i} = rhoCVX 
+%   that directsum_i rhoBlocks{i} = rhoCVX 
 %
 % Outputs:
-% * rhoCVX: nxn matrix defined by CVX after performing direct sum
+% * rhoCVX: n x n matrix defined by CVX after performing direct sum
 
 %Define stride length
 runningSum = 0;
 
 %Perform direct sum by running over block-sizes
 for index = 1:numel(rhoBlocks)
-    %Find size of curent block
+    %Find size of current block
     thisBlockSize = size(rhoBlocks{index},1);
-    %Assing entries of "big" rho defined by CVX to equal corresponding
+    %Assigns entries of "big" rho defined by CVX to equal corresponding
     %blocks
     rhoCVX(runningSum+1:runningSum+thisBlockSize,runningSum+1:runningSum+thisBlockSize) = rhoBlocks{index};
     %Update stride length

@@ -2,8 +2,9 @@ function [relEntLowerBound,modParser] = FRGNSolver(params, options,debugInfo)
 % FRGNSolver An interface to the facial reduction Gauss-Newton solver for
 % computing upper and lower bounds on the quantum relative entropy. The
 % solver was written by Hao Hu and Jiyoung Im of Henry Wolkowicz's group 
-% (with help from Jie Lin and Norbert Lutkenhaus) at the University of 
-% Waterloo; their manuscript can be found at https://arxiv.org/abs/2104.03847
+% (with help from Jie Lin and Norbert Lutkenhaus) at the University of
+% Waterloo; their manuscript can be found at
+% https://arxiv.org/abs/2104.03847
 %
 % Inputs:
 % * krausOps: A cell array of matrices. The cell array contains the Kraus
@@ -31,7 +32,7 @@ function [relEntLowerBound,modParser] = FRGNSolver(params, options,debugInfo)
 %   minimize the relative entropy.
 % * toleranceGN (1e-9): Tolerance on the Gauss-Newton algorithmic step
 % * toleranceFR (1e-12): Tolerance for facial reduction
-% * toleranceLiCols (1e-9): Tolerance usedfor determining if a set of 
+% * toleranceLiCols (1e-9): Tolerance used for determining if a set of 
 %   vectors is linearly independent
 % DebugInfo:
 % * relEntLowerBound: The lower bound on the quantum relative entropy.

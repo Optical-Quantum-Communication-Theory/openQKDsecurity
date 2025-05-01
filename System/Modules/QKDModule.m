@@ -11,7 +11,7 @@ classdef (Abstract) QKDModule
     %   function.
     % All module functions must also include the following output:
     % * debugInfo: A structure containing debug information gathered by the
-    %   module's function. Usefull for diagnostics or storing less
+    %   module's function. Useful for diagnostics or storing less
     %   important details like upper bounds on key rate.
     %
     % To help write good modules, the moduleParser class was constructed to

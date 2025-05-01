@@ -9,7 +9,7 @@ function epsilon = perturbationChannelEpsilon(rho,minEigenvalue,options)
 %   smaller eigenvalue, epsilon will be enough to perturb rho till it has
 %   his minimum eigenvalue.
 % * perturbationCheck (true): Apply the check to ensure that the
-%   purturbation amount epsilon works with theorem 2 from Reliable
+%   perturbation amount epsilon works with theorem 2 from Reliable
 %   numerical key rates.
 % * step2Enhancement (false): In step 2 rho should have all positive
 %   eigenvalues. Any negative eigenvalues are from numerical problems. At
@@ -22,7 +22,7 @@ function epsilon = perturbationChannelEpsilon(rho,minEigenvalue,options)
 %
 % See also FW2StepSolver, perturbationChannel
 arguments
-    rho (:,:) double {mustHavePositiveTrace} % Maybe we also need to check for hermitian
+    rho (:,:) double {mustHavePositiveTrace} % Maybe we also need to check for Hermitian
     minEigenvalue (1,1) double {mustBeGreaterThanOrEqual(minEigenvalue,0)} = 1e-14;
     options.perturbationCheck (1,1) logical = true;
     options.step2Enhancement (1,1) logical = false;
@@ -33,7 +33,7 @@ eigMin = lambda_min(rho);
 epsilon=0;
 if eigMin<=minEigenvalue
 
-    % If we are using Shlok's enchancement for step 2 picks, then negative
+    % If we are using Shlok's enhancement for step 2 picks, then negative
     % eigenvalues can only come from numerical issues. This way we only
     % need to perturb under the assumption that eigMin =0, and let logmsafe
     % cut off any smaller eigenvalues.

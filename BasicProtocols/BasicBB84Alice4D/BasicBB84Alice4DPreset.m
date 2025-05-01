@@ -1,7 +1,7 @@
 function qkdInput = BasicBB84Alice4DPreset()
 % BasicBB84Alice4DPreset A preset that describes a qubit based BB84
 % protocol using source replacement. In this implementation, there is no
-% tranmission loss modeled. Alice and Bob have the same probability of
+% transmission loss modeled. Alice and Bob have the same probability of
 % choosing the Z-basis (and same for the X-basis).
 
 qkdInput = QKDSolverInput();
@@ -10,8 +10,8 @@ qkdInput = QKDSolverInput();
 
 %Here we start by setting what are the initial parameters we will use with
 %the protocol. These parameters help define what needs to be fixed, what we
-%want to scan over (usualy for graphing), and what needs to be optimized to
-%extract more key.
+%want to scan over (usually for graphing), and what needs to be optimized
+%to extract more key.
 %
 %How do we know what parameters can be set? Each module (the section after
 %this) has a series of inputs they request. If they aren't given by a
@@ -39,10 +39,10 @@ qkdInput.addFixedParameter("misalignmentAngle",0);
 qkdInput.addFixedParameter("pz",1/2);
 
 
-% fEC: Efficiency of error correction. Real error correction protocols don't
-% reach the Shannon limit. fEC is a scalar muliple, that scales up the amount
-% of information leaked to fix a single bit. fEC=1, is the Shannon limit.
-% fEC=1.16 is a more realistic value.
+% fEC: Efficiency of error correction. Real error correction protocols
+% don't reach the Shannon limit. fEC is a scalar multiple, that scales up
+% the amount of information leaked to fix a single bit. fEC=1, is the
+% Shannon limit. fEC=1.16 is a more realistic value.
 qkdInput.addFixedParameter("fEC",1);
 
 %% modules
@@ -51,17 +51,18 @@ qkdInput.addFixedParameter("fEC",1);
 % core types of modules used. KeyRate, mathSolver, channel, description,
 % and optimizer modules. We give a brief description of them here but
 % please open the function and the module for a more detailed description.
-% (right click and either view help or open the function and modules directly)
+% (right click and either view help or open the function and modules
+% directly)
 %
 
 % This module works with the keyRate module to describe the class of
 % protocols that the keyRate module can solve. Usually code goes here
 % because it is likely to change to work on flavors of other protocols or
-% when parts of the protocol are usefull for a channel model to have access
+% when parts of the protocol are useful for a channel model to have access
 % to.
 % This description only provides the joint observables so that the channel
 % module can use them. It's useful when we want to swap out what our
-% measuremnts are.
+% measurements are.
 descriptionModule = QKDDescriptionModule(@BasicBB84Alice4DDescriptionFunc);
 qkdInput.setDescriptionModule(descriptionModule);
 
@@ -78,7 +79,7 @@ qkdInput.setChannelModule(channelModule);
 keyRateModule = QKDKeyRateModule(@BasicKeyRateFunc);
 qkdInput.setKeyRateModule(keyRateModule);
 
-% The optimizer module is designed to tweak perameters to increase your
+% The optimizer module is designed to tweak parameters to increase your
 % keyrate. It's not used in this protocol, though use cases can include
 % tweaking the intensity of coherent pulses used by Alice.
 optimizerMod = QKDOptimizerModule(@coordinateDescentFunc,struct("verboseLevel",0),struct("verboseLevel",0));
@@ -86,9 +87,9 @@ qkdInput.setOptimizerModule(optimizerMod);
 
 
 % The mathSolver module takes in a description of linear equality, linear
-% ineqaulity, trace norm constraints, Kraus operators (for the G map) and
+% inequality, trace norm constraints, Kraus operators (for the G map) and
 % projectors for the key map (also known as the Z map). It then determine
-% the worst case senario and produces the minimum relaive entropy between
+% the worst case scenario and produces the minimum relative entropy between
 % the key and Eve's information.
 mathSolverOptions = struct();
 mathSolverOptions.initMethod = 1; %closest to maximally mixed.

@@ -17,6 +17,6 @@ C(C<safeCutOff)=safeCutOff;
 logD = diag(log(C));
 
 logA = V * logD * V';
-logA = (logA+logA')/2; % insure hermitian
+logA = (logA+logA')/2; % insure Hermitian
 
 end
