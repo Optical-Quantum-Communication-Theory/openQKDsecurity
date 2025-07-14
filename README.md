@@ -1,6 +1,6 @@
 [![DOI](https://zenodo.org/badge/402256220.svg)](https://doi.org/10.5281/zenodo.14262568)
 
-# OpenQKDSecurity Version 2.0
+# OpenQKDSecurity Version 2.1
 
 OpenQKDSecurity is a software package based in MATLAB that allows users to calculate key rates for quantum key distribution (QKD) protocols using the [Winick et al. framework](https://quantum-journal.org/papers/q-2018-07-26-77/) ([arXiv](https://arxiv.org/abs/1710.05511)). It is extensible, allowing for user-defined protocols to be implemented, and modular, allowing for users to change specific aspects of a protocol. Our software can be used to interface with experimental data, demonstrate the theoretical scalability of protocols in various conditions, and optimize parameters to maximize key rate. Its modular structure helps break down the colossal task of calculating key rates into small areas that require only domain specific knowledge. Therefore, no single person must be an expect in all areas.
 
@@ -119,11 +119,11 @@ Here is a bibtex entry you can use:
                   Mathur, Natansh and
                   Upadhyaya, Twesh and
                   Lutkenhaus, Norbert},
-  title        = {Open {QKD} {S}ecurity: {V}ersion 2.0.2},
+  title        = {Open {QKD} {S}ecurity: {V}ersion 2.1.0},
   month        = dec,
   year         = 2024,
   publisher    = {Zenodo},
-  version      = {v2.0.2},
+  version      = {v2.1.0},
   doi          = {10.5281/zenodo.14262569},
   url          = {https://doi.org/10.5281/zenodo.14262569}
   swhid        = {swh:1:dir:ce63165f716a15a425fbadc208e27934cc66be10
