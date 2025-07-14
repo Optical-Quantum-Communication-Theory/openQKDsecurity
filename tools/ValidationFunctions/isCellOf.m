@@ -7,5 +7,5 @@ function value = isCellOf(cellArray,type)
 % * type: Variable type that all members of the cell array should be
 %
 % See also isStructOf
-value = ~any(cellfun(@(x) ~isa(x,type),cellArray));
+value = ~any(cellfun(@(x) ~isa(x,type),cellArray),"all");
 end

@@ -11,6 +11,9 @@
 *.log
 *.out
 
+# ignore documentation build files
+docs/build/
+
 # Don't know where this is from but it keeps comming up
 *.DS_Store
 

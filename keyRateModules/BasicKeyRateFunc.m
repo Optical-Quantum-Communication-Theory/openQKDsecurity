@@ -90,8 +90,8 @@ modParser.addRequiredParam("fEC",...
 modParser.addOptionalParam("rhoA", nan, @(x) isequaln(x,nan) || isDensityOperator(x));
 
 
-modParser.addOptionalParam("blockDimsA", nan, @isBlockDimsWellFormated);
-modParser.addOptionalParam("blockDimsB", nan, @isBlockDimsWellFormated);
+modParser.addOptionalParam("blockDimsA", nan, @isBlockDimsWellFormatted);
+modParser.addOptionalParam("blockDimsB", nan, @isBlockDimsWellFormatted);
 modParser.addAdditionalConstraint(@(x,y) blockDimsMustMatch(x,y),["blockDimsA","dimA"]);
 modParser.addAdditionalConstraint(@(x,y) blockDimsMustMatch(x,y),["blockDimsB","dimB"]);
 modParser.addAdditionalConstraint(@(blockDimsA,blockDimsB) ~xor(isequaln(blockDimsA,nan),isequaln(blockDimsB,nan)),["blockDimsA","blockDimsB"]);

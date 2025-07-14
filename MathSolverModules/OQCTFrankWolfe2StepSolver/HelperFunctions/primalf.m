@@ -33,5 +33,5 @@ perturbation = max(pertG,pertZ);
 gRho=perturbationChannel(gRho,perturbation);
 zRho=perturbationChannel(zRho,perturbation);
 
-fval = real(trace(gRho*(logm(gRho)-logm(zRho)))); % calculate the quantum relative entropy
+fval = real(trace(gRho*(logm(gRho)-logm(zRho))))/log(2); % calculate the quantum relative entropy
 end

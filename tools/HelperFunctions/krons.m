@@ -3,16 +3,16 @@ function matOut = krons(matrices)
 % matrices. Must have at least one input.
 %
 % Inputs:
-% * matrices: A cell array of the matrices to multiply.
+% * matrices: Repeating. Matrices to take the Kronecker product of.
 %
 % See also kron
 arguments (Repeating)
-    matrices (:,:) {isnumeric(matrices),ismatrix(matrices)}
+    matrices (:,:) {mustBeNumericOrLogical}
 end
 
 if isempty(matrices)
-    err = MException("krons:AtleastOneInput","Krons must have at least one input.");
-    throw(err);
+    throw(MException("krons:AtleastOneInput",...
+        "Krons must have at least one input."));
 end
 matOut = matrices{1};
 

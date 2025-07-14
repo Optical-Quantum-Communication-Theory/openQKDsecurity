@@ -7,5 +7,6 @@ function val = isDensityOperator(operator)
 % * operator: Square matrix to test if it represents a density matrix
 %
 % See also IsPSD, equaltol
-val =  equaltol(real(trace(operator)),1) && IsPSD(operator);
+val =  ishermitian(operator) && equaltol(real(trace(operator)),1) ...
+    && IsPSD(operator);
 end

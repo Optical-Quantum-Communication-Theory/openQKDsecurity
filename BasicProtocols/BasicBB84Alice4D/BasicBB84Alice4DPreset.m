@@ -93,8 +93,8 @@ qkdInput.setOptimizerModule(optimizerMod);
 % the key and Eve's information.
 mathSolverOptions = struct();
 mathSolverOptions.initMethod = 1; %closest to maximally mixed.
-mathSolverOptions.maxIter = 10; %number of iterations that should be performed
-mathSolverOptions.maxGap = 1e-6;
+mathSolverOptions.frankWolfeMethod = @FrankWolfe.vanilla;
+mathSolverOptions.frankWolfeOptions = struct("maxIter",10,"maxGap",1e-6);
 mathSolverOptions.linearConstraintTolerance = 1e-10;
 mathSolverMod = QKDMathSolverModule(@FW2StepSolver,mathSolverOptions);
 qkdInput.setMathSolverModule(mathSolverMod);
@@ -117,5 +117,5 @@ qkdInput.setMathSolverModule(mathSolverMod);
 %   point is set to nan and the error message is appended to the debug
 %   info.  The key rate for the point is set to nan. DontCatch 3: don't
 %   catch the error and let it up the stack.
-qkdInput.setGlobalOptions(struct("errorHandling",ErrorHandling.CatchWarn,"verboseLevel",1,"cvxSolver","SDPT3", "cvxPrecision", "high"));
+qkdInput.setGlobalOptions(struct("errorHandling",ErrorHandling.CatchWarn,"verboseLevel",1,"cvxSolver","SeDuMi", "cvxPrecision", "high"));
 end

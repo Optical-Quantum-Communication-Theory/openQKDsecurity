@@ -7,6 +7,9 @@ function value = isStructOf(inputStruct,type)
 % * type: The type to compare the struct against
 %
 % See also isCellOf
-names = fieldnames(inputStruct);
-value = ~any(cellfun(@(x) ~isa(inputStruct.(x),type),names));
+arguments
+    inputStruct (1,1) struct
+    type (:,1) string{mustBeNonempty,mustBeNonzeroLengthText}
+end
+value = ~any(structfun(@(x) ~isa(x,type),inputStruct),"all");
 end

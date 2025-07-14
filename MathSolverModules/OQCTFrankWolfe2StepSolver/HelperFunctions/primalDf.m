@@ -39,7 +39,7 @@ logGRho = perturbationChannel(logm(gRho),perturbation);
 logZRho = perturbationChannel(logm(zRho),perturbation);
 
 % apply the logs and inverse G map.
-dfval = ApplyMap(logGRho-logZRho,DualMap(krausOperators));
+dfval = ApplyMap(logGRho-logZRho,DualMap(krausOperators))/log(2);
 
 dfval = (dfval+dfval')/2; %remove any odd anti-Hermitian bits
 end

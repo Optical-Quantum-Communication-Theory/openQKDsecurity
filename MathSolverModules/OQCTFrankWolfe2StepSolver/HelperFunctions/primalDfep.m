@@ -37,7 +37,7 @@ logGRho = perturbationChannel(logmsafe(gRho,safeCutOff), perturbation);
 logZRho = perturbationChannel(logmsafe(zRho,safeCutOff), perturbation);
 
 %Apply G^\dagger
-Dfval = ApplyMap(logGRho-logZRho,DualMap(krausOperators));
+Dfval = ApplyMap(logGRho-logZRho,DualMap(krausOperators))/log(2);
 
 % ensure Dfval is Hermitian
 Dfval = (Dfval+Dfval')/2;

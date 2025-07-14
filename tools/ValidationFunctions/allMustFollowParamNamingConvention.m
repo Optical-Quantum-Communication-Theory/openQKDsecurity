@@ -4,8 +4,13 @@ function allMustFollowParamNamingConvention(params)
 %
 % Input:
 % * params: Parameters to validate
-arguments
-    params (1,1) struct
+if ~isstruct(params)
+    throw(MException("validationFunction:notAStruct", ...
+        "The input must be a struct to evaluate field names."))
 end
+try 
 mustFollowParamNamingConvention(fieldnames(params));
+catch err
+    err.throwAsCaller();
+end
 end

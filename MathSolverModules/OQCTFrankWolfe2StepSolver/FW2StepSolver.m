@@ -46,31 +46,29 @@ function [relEntLowerBound,modParser] = FW2StepSolver(params,options,debugInfo)
 %   from rhoA. If your proof technique has a more nuanced relation, then
 %   you may have to remove this and add it by hand to your other
 %   constraints.
+%
 % Output:
 % * relEntLowerBound: The lower bound on the relative entropy between the
 %   key and Eve, given the constraints.
+%
 % Options:
 % * cvxSolver (global option): See makeGlobalOptionsParser for details.
 % * cvxPrecision (global option): See makeGlobalOptionsParser for details.
 % * verboseLevel (global option): See makeGlobalOptionsParser for details.
 % * maxIter (20): maximum number of Frank Wolfe iteration steps taken to
 %   minimize the relative entropy.
-% * maxGap (1e-6): Exit condition for the Frank Wolfe algorithm. When the
-%   relative gap between the current and previous iteration is small
-%   enough, the Frank Wolfe algorithm exits and returns the current point.
-%   The gap must be a positive scalar.
-% * linearSearchPrecision (1e-20): Precision the fminbnd tries to achieve
-%   when searching along the line between the current point and the points
-%   along the gradient line. See fminbnd and optimset for more details.
-% * linearSearchMinStep (1e-3): Minimum step size fminbnd must take
-%   during the Frank Wolf algorithm. Initially, this can help with faster
-%   convergence, but can also just prevent convergence. See fminbnd for
-%   more details (the second argument, x1, in the function).
 % * linearConstraintTolerance (1e-10): constraint tolerance on the
 %   equalityConstraints, inequalityConstraints, vectorOneNormConstraints
 %   and matrixOneNormConstraints for step 1 of the solver. This is to help
 %   the solver find feasible points during step 1 and play no role in step
 %   2.
+% * frankWolfeMethod (FrankWolfe.vanilla): Function handle for the Frank
+%   Wolfe method used to optimize the quantum relative entropy. The
+%   provided function should comply with the interface outlined in
+%   FrankWolfe. See FrankWolfe for more details.
+% * frankWolfeOptions (struct()): The scalar options structure passed onto
+%   the selected Frank Wolfe method. See the selected Frank Wolfe method's
+%   documentation for more details.
 % * initMethod (1): Integer selected from {1,2,3}. For the Frank Wolfe
 %   algorithm, the initial point must satisfy the constraints. This selects
 %   which technique is used, from 3 choices:
@@ -81,7 +79,7 @@ function [relEntLowerBound,modParser] = FW2StepSolver(params,options,debugInfo)
 %   block diagonal. If true, the solver also requires two parameters
 %   blockDimsA and blockDimsB, which tell the solver what the block
 %   dimensions of A and B are respectively.
-
+%
 % DebugInfo:
 % * relEntStep1: Value of the relative entropy achieved during the
 %   Frank-Wolfe approximate minimization. It can help with determining if
@@ -95,14 +93,15 @@ function [relEntLowerBound,modParser] = FW2StepSolver(params,options,debugInfo)
 % * closestDensityMatrixStatus: String containing the status of the CVX
 %   solver after attempting to solve for the closest density matrix in step
 %   1 of the solver.
-% * subproblemStatus: Array of strings containing the status of the CVX
-%   solver as it find the direction to move along for iterations of step 1.
+% * FrankWolfeMethod: The DebugInfo leaf containing the debug information
+%   added by the selected Frank Wolfe method.
 % * submaxproblemStatus: CVX status for the solver when calculating the
 %   dual solution (a maximization) used in step 2's linearization.
 % * dualSolution: Optimal value achieved from the subMaxProblem mentioned
 %   above.
 %
-% See also: QKDMathSolverModule, makeGlobalOptionsParser, fminbnd, optimset
+% See also: QKDMathSolverModule, makeGlobalOptionsParser, fminbnd,
+% optimset, FrankWolfe, FrankWolfe.vanilla
 arguments
     params (1,1) struct
     options (1,1) struct
@@ -113,30 +112,22 @@ end
 
 %start with the global parser and add on the extra options
 optionsParser = makeGlobalOptionsParser(mfilename);
-
-optionsParser.addOptionalParam("maxIter",20,...
-    @isscalar,...
-    @mustBePositive,...
-    @mustBeInteger);
-optionsParser.addOptionalParam("maxGap",1e-6,...
-    @isscalar,...
-    @mustBePositive);
-optionsParser.addOptionalParam("linearSearchPrecision",1e-20, ...
-    @isscalar, ...
-    @mustBePositive);
-optionsParser.addOptionalParam("linearSearchMinStep",1e-3, ...
-    @isscalar, ...
-    @(x) mustBeInRange(x,0,1));
 optionsParser.addOptionalParam("linearConstraintTolerance",1e-10, ...
     @isscalar, ...
     @mustBePositive);
+optionsParser.addOptionalParam("frankWolfeMethod",@FrankWolfe.vanilla, ...
+    @isscalar, ...
+    @(x) mustBeA(x,"function_handle"));
+optionsParser.addOptionalParam("frankWolfeOptions",struct(), ...
+    @isscalar, ...
+    @(x) mustBeA(x,"struct"));
 optionsParser.addOptionalParam("initMethod",1, ...
     @isscalar, ...
     @(x) mustBeMember(x,[1,2,3]));
 optionsParser.addOptionalParam("blockDiagonal", false, ...
     @isscalar, ...
     @(x) mustBeMember(x, [true, false]));
-optionsParser.parse(options);
+optionsParser.parse(options,"warnUnusedParams",true);
 
 options = optionsParser.Results;
 
@@ -177,8 +168,8 @@ modParser.addAdditionalConstraint(@(matrixOneNormConstraints,krausOps)...
 
 % block diagonal constraints (if enabled)
 if options.blockDiagonal
-    modParser.addRequiredParam("blockDimsA", @isBlockDimsWellFormated);
-    modParser.addRequiredParam("blockDimsB", @isBlockDimsWellFormated);
+    modParser.addRequiredParam("blockDimsA", @isBlockDimsWellFormatted);
+    modParser.addRequiredParam("blockDimsB", @isBlockDimsWellFormatted);
 
     % make sure they sum to the total number of dimensions
     modParser.addAdditionalConstraint(@(blockDimsA,blockDimsB,krausOps)...
@@ -226,23 +217,26 @@ end
 
 %% start the solver
 
-%determine the size of density matrix we need for Alice and Bob
+% Our typical strategy is to pick the closest point in our convex set to
+% the maximally mixed state. This is usually close to optimal.
 dimAB = size(params.krausOps{1},2);
-
-%generate maximally mixed state, later used as initial guess for FW iteration
 rho0 = eye(dimAB)/dimAB;
 
 % generate block diagonal transformation matrices
 if options.blockDiagonal
     [options.blockP, options.newDims] = blockRearrange(params.blockDimsA, params.blockDimsB);
+else
+    % no block diagonal structure given. Just set it to one large block.
+    options.blockP = eye(dimAB);
+    options.newDims = dimAB;
 end
 
 
 % run step 1 routines
-[rho,relEntStep1,~] = step1Solver(rho0,eqCons,ineqCons,...
-    vec1NormCons,mat1NormCons,params.krausOps,params.keyProj,options,debugInfo);
+[rho,relEntStep1] = step1Solver(rho0,eqCons,ineqCons,...
+    vec1NormCons,mat1NormCons,params.krausOps,params.keyProj, ...
+    options.frankWolfeMethod,options.frankWolfeOptions,options,debugInfo);
 
-relEntStep1 = relEntStep1/log(2);
 debugInfo.storeInfo("relEntStep1",relEntStep1);
 
 
@@ -255,8 +249,6 @@ rho = perturbationChannel(rho,epsilonForInitialPoint);
 relEntLowerBound = step2Solver(rho,eqCons,ineqCons,vec1NormCons,...
     mat1NormCons,params.krausOps,params.keyProj,options,debugInfo);
 
-%convert back to bits.
-relEntLowerBound = relEntLowerBound/log(2);
 debugInfo.storeInfo("relEntLowerBound",relEntLowerBound);
 end
 

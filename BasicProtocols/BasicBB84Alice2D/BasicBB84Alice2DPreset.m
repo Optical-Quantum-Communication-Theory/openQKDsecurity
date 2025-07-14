@@ -80,7 +80,8 @@ qkdInput.setKeyRateModule(keyRateModule);
 % The optimizer module is designed to tweak parameters to increase your
 % keyrate. It's not used in this protocol, though use cases can include
 % tweaking the intensity of coherent pulses used by Alice.
-optimizerMod = QKDOptimizerModule(@coordinateDescentFunc,struct("verboseLevel",0),struct("verboseLevel",0));
+optimizerMod = QKDOptimizerModule(@coordinateDescentFunc,struct("verboseLevel",0),...
+    struct("verboseLevel",0));
 qkdInput.setOptimizerModule(optimizerMod);
 
 
@@ -91,8 +92,8 @@ qkdInput.setOptimizerModule(optimizerMod);
 % the key and Eve's information.
 mathSolverOptions = struct();
 mathSolverOptions.initMethod = 1; %closest to maximally mixed.
-mathSolverOptions.maxIter = 10; %number of iterations that should be performed
-mathSolverOptions.maxGap = 1e-6;
+mathSolverOptions.frankWolfeMethod = @FrankWolfe.vanilla;
+mathSolverOptions.frankWolfeOptions = struct("maxIter",10,"maxGap",1e-6);
 mathSolverOptions.linearConstraintTolerance = 1e-10;
 mathSolverMod = QKDMathSolverModule(@FW2StepSolver,mathSolverOptions);
 qkdInput.setMathSolverModule(mathSolverMod);
@@ -108,7 +109,7 @@ qkdInput.setMathSolverModule(mathSolverMod);
 % * verboseLevel (default 1): Non-negative integer telling the program how
 %   much information it should display in the command window. 0, minimum; 1
 %   basic information; 2, full details, including CVX output.
-% * errorHandling (2): ErrorHandling object (unit8 or convertible),
+% * errorHandling (2): ErrorHandling object (uint8 or convertible),
 %   detailing how the program should handle run time errors. CatchSilent 1:
 %   catch but don't warn the user and the error message is appended to the
 %   debug info. CatchWarn 2: catch and warn the user. The key rate for the

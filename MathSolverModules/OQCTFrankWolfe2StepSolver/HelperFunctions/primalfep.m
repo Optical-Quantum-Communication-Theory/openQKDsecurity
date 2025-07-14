@@ -34,5 +34,5 @@ zRho = ApplyMap(gRho, keyProj);
 gRho = perturbationChannel(gRho, perturbation);
 zRho = perturbationChannel(zRho, perturbation);
 
-fval = real(trace(gRho*(logmsafe(gRho,safeCutOff)-logmsafe(zRho,safeCutOff))));
+fval = real(trace(gRho*(logmsafe(gRho,safeCutOff)-logmsafe(zRho,safeCutOff))))/log(2);
 end

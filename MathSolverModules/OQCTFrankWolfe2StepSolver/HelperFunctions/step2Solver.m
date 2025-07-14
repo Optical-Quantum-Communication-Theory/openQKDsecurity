@@ -1,4 +1,5 @@
-function lowerBound = step2Solver(rho,eqCons,ineqCons,vec1NormCons,mat1NormCons,krausOps,keyProj,options,debugInfo)
+function lowerBound = step2Solver(rho, eqCons,ineqCons,vec1NormCons, ...
+    mat1NormCons, krausOps,keyProj, options,debugInfo)
 % Part of the FW2StepSolver. Don't use or touch this if you don't know what
 % that means.
 %
@@ -14,6 +15,11 @@ arguments
     keyProj (:,1) cell
     options (1,1) struct
     debugInfo (1,1) DebugInfo
+
+    % options needed
+    % options.cvxSolver (1,1) string
+    % options.cvxPrecision (1,1) string
+    % options.verboseLevel (1,1) double
 end
 
 % 1. Compute the value to perturb by (perturbation)
@@ -22,16 +28,16 @@ debugInfo.storeInfo("perturbationValue",perturbation);
 
 % 2. Calculate f_epsilon_p(rho) and its gradient at the same point.
 fval = primalfep(perturbation, rho, keyProj, krausOps,safeCutOff);
-debugInfo.storeInfo("relEntStep2Linearization",fval/log(2));
+debugInfo.storeInfo("relEntStep2Linearization",fval);
 
-gradf = primalDfep(perturbation, rho, keyProj, krausOps,safeCutOff); % numerator form
+gradf = primalDfep(perturbation, rho, keyProj, krausOps,safeCutOff);
 
 
 % begin calculating lower bound
 [dualSolution, submaxproblemStatus] = submaxproblem(gradf,eqCons,ineqCons,...
-    vec1NormCons,mat1NormCons,options,debugInfo); % takes in numerator form
+    vec1NormCons,mat1NormCons,options);
 debugInfo.storeInfo("submaxproblemStatus",submaxproblemStatus);
-debugInfo.storeInfo("dualSolution",dualSolution/log(2));
+debugInfo.storeInfo("dualSolution",dualSolution);
 
 
 % compute key rate lower bound from the result of step 2
@@ -40,7 +46,6 @@ beta = dualSolution + fval - real(trace(gradf*rho)); %real() deals with small nu
 % Because f(maxMixed) = 0, we can use convex arguments to get
 % f_\epsilon(\rho)/(1-\epsilon) \leq f(\rho)$. This is way cleaner than
 % other perturbation bounds
-
 
 lowerBound = beta/(1-perturbation);
 end
@@ -83,7 +88,21 @@ end
 
 
 %% submax problem *********************************************************
-function [lowerbound, cvxStatus] = submaxproblem(gradf,eqCons,ineqCons,vec1NormCons,mat1NormCons,options,debugInfo)
+function [lowerbound, cvxStatus] = submaxproblem(gradf,eqCons,ineqCons,...
+    vec1NormCons,mat1NormCons,options)
+arguments
+    gradf (:,:) double
+    eqCons (:,1) EqualityConstraint
+    ineqCons (:,1) InequalityConstraint
+    vec1NormCons (:,1) VectorOneNormConstraint
+    mat1NormCons (:,1) MatrixOneNormConstraint
+    options (1,1) struct
+
+    % options.cvxSolver (1,1) string
+    % options.cvxPrecision (1,1) string
+    % options.verboseLevel (1,1) double
+end
+
 % I wish I could put the constraints in a separate function like I did with
 % the primal constraints, but it just doesn't work because of limitations
 % with where you can make CVX variables.

@@ -60,8 +60,8 @@ qkdInput.setOptimizerModule(optimizerMod);
 % math solver options
 mathSolverOptions = struct();
 mathSolverOptions.initMethod = 1;
-mathSolverOptions.maxIter = 50  ;
-mathSolverOptions.maxGap = 1e-6;
+mathSolverOptions.frankWolfeMethod = @FrankWolfe.vanilla;
+mathSolverOptions.frankWolfeOptions = struct("maxIter",50,"maxGap",1e-6);
 mathSolverOptions.blockDiagonal = false;
 mathSolverMod = QKDMathSolverModule(@FW2StepSolver,mathSolverOptions,mathSolverOptions);
 qkdInput.setMathSolverModule(mathSolverMod);
