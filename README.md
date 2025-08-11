@@ -1,6 +1,6 @@
 [![DOI](https://zenodo.org/badge/402256220.svg)](https://doi.org/10.5281/zenodo.14262568)
 
-# OpenQKDSecurity Version 2.0
+# OpenQKDSecurity Version 2.1
 
 OpenQKDSecurity is a software package based in MATLAB that allows users to calculate key rates for quantum key distribution (QKD) protocols using the [Winick et al. framework](https://quantum-journal.org/papers/q-2018-07-26-77/) ([arXiv](https://arxiv.org/abs/1710.05511)). It is extensible, allowing for user-defined protocols to be implemented, and modular, allowing for users to change specific aspects of a protocol. Our software can be used to interface with experimental data, demonstrate the theoretical scalability of protocols in various conditions, and optimize parameters to maximize key rate. Its modular structure helps break down the colossal task of calculating key rates into small areas that require only domain specific knowledge. Therefore, no single person must be an expect in all areas.
 
@@ -40,8 +40,8 @@ Our software requires *at least version 2020b* for full functionality, but insta
 
 Our software has the following dependencies for its default settings:
 
-- [CVX](https://cvxr.com/cvx/download/) v2.2, a library for solving convex optimization problems in MATLAB. For those having trouble running CVX on MacOS, please check CVX's offical forms for help. We recommend reading [this](https://ask.cvxr.com/t/gurobi-mexmaci64-cannot-be-opened-because-the-developer-cannot-be-verified/6755) and [this](https://ask.cvxr.com/t/announcement-cvx-for-apple-silicon/12280) to start.
-- [QETLAB](https://github.com/nathanieljohnston/QETLAB) *above* v0.9, a MATLAB toolbox for operations involving quantum channels and entanglement. Note that you cannot use the version from their website as it has a bugs associated with implementing Choi matrices. *You must use their latest copy on Github*. At the time of writing, this means downloading their code with the green "code" button and *not* the v0.9 release.
+- [CVX](https://github.com/cvxr/CVX) v2.2.2, a library for solving convex optimization problems in MATLAB. For those having trouble running CVX on MacOS, please check CVX's offical forms for help. We recommend reading [this](https://ask.cvxr.com/t/gurobi-mexmaci64-cannot-be-opened-because-the-developer-cannot-be-verified/6755) and [this](https://ask.cvxr.com/t/announcement-cvx-for-apple-silicon/12280) to start.
+- [QETLAB](https://github.com/nathanieljohnston/QETLAB) v1.0, a MATLAB toolbox for operations involving quantum channels and entanglement.
 - [ZGNQKD](https://www.math.uwaterloo.ca/~hwolkowi/henry/reports/ZGNQKDmainsolverUSEDforPUBLCNJuly31/) solver (optional), an alternative to our Frank-Wolfe solver for quantum relative entropy. Currently, it only supports equality constraints. Download the zip and the "Solver" folder and sub-folders to your path.
 - [MOSEK](https://www.mosek.com/) (optional), a more advanced semidefinite programming (SDP) solver than the default (SDPT3) used in CVX. Note that the MOSEK solver can be downloaded together with CVX, but requires a separate license to use. See [this page](https://cvxr.com/cvx/doc/mosek.html) for more information.
 
@@ -119,11 +119,11 @@ Here is a bibtex entry you can use:
                   Mathur, Natansh and
                   Upadhyaya, Twesh and
                   Lutkenhaus, Norbert},
-  title        = {Open {QKD} {S}ecurity: {V}ersion 2.0.2},
+  title        = {Open {QKD} {S}ecurity: {V}ersion 2.1.0},
   month        = dec,
   year         = 2024,
   publisher    = {Zenodo},
-  version      = {v2.0.2},
+  version      = {v2.1.0},
   doi          = {10.5281/zenodo.14262569},
   url          = {https://doi.org/10.5281/zenodo.14262569}
   swhid        = {swh:1:dir:ce63165f716a15a425fbadc208e27934cc66be10
@@ -145,3 +145,4 @@ OpenQKDSecurity is licensed under the MIT license. See the LICENSE file for deta
 
 ## Acknowledgements
 This work has been performed at the Institute for Quantum Computing (IQC), which is supported by Innovation, Science and Economic Development (ISED) Canada. This research has been supported by NSERC Collaborative Research and Development (CRD) Program and Discovery Grants Program. Financial support for this project has been partially provided by Huawei Technologies Canada Co., Ltd.
+
