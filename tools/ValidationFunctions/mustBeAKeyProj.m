@@ -7,7 +7,7 @@ function mustBeAKeyProj(keyProj)
 %
 % See also isKeyMap
     if ~isKeyProj(keyProj)
-        MException("ValidationFunction:NotAKeyProj",...
-            "The operators do not form a valid set of projection operators.")
+        throwAsCaller(MException("ValidationFunction:NotAKeyProj",...
+            "The operators do not form a valid set of projection operators."))
     end
 end

@@ -85,8 +85,8 @@ dimA = params.dimA;
 
 
 % generate the maximally entangled density matrix for these
-rhoAPrime = MaxEntangled(dimA,false,false);
-rhoAPrime = (rhoAPrime*rhoAPrime')/dimA;
+rhoAAPrime = MaxEntangled(dimA,false,false);
+rhoAAPrime = (rhoAAPrime*rhoAAPrime')/dimA;
 
 % applytoBob is a function that applies maps on Bob's subsystem.
 % PartialMap applies the depolorChoi map to the 2nd subsystem, where
@@ -95,18 +95,18 @@ applyToAPrime = @(rhoAAPrime,depolOrChoi) PartialMap(rhoAAPrime,depolOrChoi,2,[d
 
 %Depolarization
 depolChoiMat =  Qudit.depolarizationChoiMat(dimA,params.depolarization);
-rhoAPrime = applyToAPrime(rhoAPrime,depolChoiMat);
+rhoAAPrime = applyToAPrime(rhoAAPrime,depolChoiMat);
 
 %Rotation
 %When using QetLab's PartialMap function, Kraus operators need to be
 %passed in as a cell array. If you don't, it will try and use it as a
 %Choi matrix.
 rotationKrausOps = {Qudit.rotateStateZXY(params.misalignmentAngle,[0,0,1],"angleOnBlochSphere",false)};
-rhoAPrime = applyToAPrime(rhoAPrime,rotationKrausOps);
+rhoAAPrime = applyToAPrime(rhoAAPrime,rotationKrausOps);
 
 %transmittance/loss. last dimension is vacuum.
 transmittanceChoiMat = Qudit.transmittanceChoiMat(params.transmittance,params.dimA);
-rhoAB = applyToAPrime(rhoAPrime,transmittanceChoiMat); %only now can you call this rhoAB
+rhoAB = applyToAPrime(rhoAAPrime,transmittanceChoiMat); %only now can you call this rhoAB
 
 %% compute expectations
 % load observables from description to compute expectations

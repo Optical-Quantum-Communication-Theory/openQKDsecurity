@@ -2,11 +2,31 @@ classdef QKDSolverInput < handle
     % QKDSolverInput An object to bundle together parameters of different
     % types with modules and options to define a preset for the solver.
     %
-    % TODO:
-    % * Flesh out description of the QKDSolverInput.
+    % How To Setup Warm Starts
+    % ------------------------
     %
-    % See also MainIteration, QKDOptimizerModule, QKDDescriptionModule, QKDChannelModule, QKDKeyRateModule, QKDMathSolverModule, makeGlobalOptionsParser
-    properties (SetAccess = protected)
+    % When using global optimization it is often desirable to use the
+    % previous iterations optimal values for optimizeParameters as the
+    % initial values for the next iteration.
+    %
+    % To get started:
+    % # Set up your QKDSolverInput as usual. Here we'll call ours
+    %   `qkdInput`.
+    % # Tell the solver which parameters you want to warm start like,
+    %   `qkdInput.setScanParameterWarmStart("scanParam1",true);`.
+    %   Alternatively, you can set a scan parameter to use warms starts
+    %   when you first add it like,
+    %  `qkdInput.addScanParameter("scanParam1",{1,2,3},true);`.
+    % # set `useWarmStarts` to true. For example, `qkdInput.useWarmStarts =
+    %   true;`.
+    % # Run your QKDSolverInput as usual.
+    %
+    % More details on the warm start algorithm can be found in WarmStart.
+    %
+    % See also MainIteration, QKDOptimizerModule, QKDDescriptionModule,
+    % QKDChannelModule, QKDKeyRateModule, QKDMathSolverModule,
+    % makeGlobalOptionsParser, WarmStarter
+    properties (SetAccess = private)
         %% parameters
 
         % Structure of name value pairs containing cell arrays of parameter elements to scan over.
@@ -27,6 +47,7 @@ classdef QKDSolverInput < handle
         %
         % See also addOptimizationParameter, removeOptimizationParameter
         optimizeParameters (1,1) struct
+
 
         %% modules
 
@@ -78,8 +99,34 @@ classdef QKDSolverInput < handle
         globalOptions (1,1) struct;
     end
 
+    properties (Dependent, SetAccess = private)
+        % structure with name value pairs of name and the
+        % warm start flag for each scan parameter.
+        %
+        % See also: WarmStarter, useWarmStarts
+        scanParametersGlobalOptWarmStart (1,1) struct
+    end
+
+    properties(Access = public)
+        % Toggle if the global optimization routine should use warm starts
+        % on optimization parameters as it iterates through the scan
+        % parameters. Make sure to set the warm start flag to true for at
+        % least one scan parameter or this will do nothing. Default, false.
+        %
+        % See also: WarmStarter, addScanParameter, reorderScanParameters
+        % scanParametersGlobalOptWarmStart
+        useWarmStarts (1,1) logical = false;
+    end
+
+    properties (Access = private)
+        privateScanParametersGlobalOptWarmStart (1,1) struct = struct();
+    end
+
     properties(Dependent)
         totalIterations (1,1) uint64
+        hasScanParameters (1,1) logical
+        hasFixedParameters (1,1) logical
+        hasOptimizeParameters (1,1) logical
     end
 
     methods
@@ -98,7 +145,7 @@ classdef QKDSolverInput < handle
         %% parameter functions
 
         %scan
-        function addScanParameter(obj,name,cellArray)
+        function addScanParameter(obj,name,cellArray,globalOptWarmStart)
             % Add a parameter and its values to scan over.
             % The parameter name must follow the naming conventions and the
             % parameter values must be given in the form of cell array.
@@ -110,13 +157,16 @@ classdef QKDSolverInput < handle
             % cellArray: cell array of values the parameter will take while
             % solving for the key rate.
             %
-            % See also scanParameters, mustFollowParamNamingConvention, removeScanParameter
+            % See also: scanParameters, mustFollowParamNamingConvention,
+            % removeScanParameter
             arguments
                 obj (1,1) QKDSolverInput
                 name (1,1) string {mustFollowParamNamingConvention(name)}
                 cellArray (:,1) cell {mustBeNonempty}
+                globalOptWarmStart (1,1) logical = false;
             end
             obj.scanParameters.(name) = cellArray;
+            obj.scanParametersGlobalOptWarmStart.(name) = globalOptWarmStart;
 
             % check and remove conflicts with the other parameters
             obj.fixedParameters = checkAndRemoveNameFromStruct(obj.fixedParameters,name);
@@ -135,7 +185,43 @@ classdef QKDSolverInput < handle
             end
 
             obj.scanParameters = rmfield(obj.scanParameters,names);
+            obj.scanParametersGlobalOptWarmStart = rmfield(obj.scanParametersGlobalOptWarmStart,names);
 
+        end
+
+        function reorderScanParameters(obj,orderedNames)
+            % wrapper around Matlab's orderfields function to let the user
+            % reorder the scan parameters based on their names.
+            %
+            % See also: orderfields
+            arguments
+                obj (1,1) QKDSolverInput
+                orderedNames (:,1) string
+            end
+            obj.scanParameters = orderfields(obj.scanParameters,orderedNames);
+            obj.scanParametersGlobalOptWarmStart ...
+                = orderfields(obj.scanParametersGlobalOptWarmStart,orderedNames);
+        end
+
+        function setScanParameterWarmStart(obj,scanParameterName,warmStart)
+            % Simple way to change which scan parameters allow global
+            % optimization warm starts.
+            %
+            % Remember, QKDSolverInput.useWarmStarts must be set to true to
+            % use global optimization warm starts.
+            %
+            % See also: QKDSolverInput.useWarmStarts
+            arguments
+                obj (1,1) QKDSolverInput
+                scanParameterName (1,1) string
+                warmStart (1,1) logical
+            end
+
+            mustBeMember(scanParameterName,fieldnames(obj.scanParameters))
+
+            for index = 1:numel(scanParameterName)
+                obj.scanParametersGlobalOptWarmStart.(scanParameterName) = warmStart;
+            end
         end
 
         %fixed
@@ -160,8 +246,10 @@ classdef QKDSolverInput < handle
 
             % check and remove conflicts with the other parameters
             obj.scanParameters = checkAndRemoveNameFromStruct(obj.scanParameters,name);
+            obj.scanParametersGlobalOptWarmStart = checkAndRemoveNameFromStruct(obj.scanParametersGlobalOptWarmStart,name);
             obj.optimizeParameters = checkAndRemoveNameFromStruct(obj.optimizeParameters,name);
         end
+        
         function removeFixedParameter(obj,names)
             % remove the list of parameters from the fixed parameters.
             % names: Array of Strings specifying the names of parameters to
@@ -214,8 +302,8 @@ classdef QKDSolverInput < handle
             modParser.parse(value);
 
             if ismember("name",fieldnames(modParser.Unmatched))
-                err = MException("QKDSolverInput:scanParameterCannotHavePropertyName",...
-                    "Scan parameters cannot have a property called 'name'.");
+                err = MException("QKDSolverInput:optimizationParameterCannotHavePropertyName",...
+                    "optimization parameters cannot have a property called 'name'.");
                 throw(err)
             end
 
@@ -224,6 +312,7 @@ classdef QKDSolverInput < handle
             % check and remove conflicts with the other parameters
             obj.fixedParameters = checkAndRemoveNameFromStruct(obj.fixedParameters,name);
             obj.scanParameters = checkAndRemoveNameFromStruct(obj.scanParameters,name);
+            obj.scanParametersGlobalOptWarmStart = checkAndRemoveNameFromStruct(obj.scanParametersGlobalOptWarmStart,name);
         end
         function removeOptimizeParameter(obj,names)
             % remove the list of parameters from the optimize parameters.
@@ -339,9 +428,53 @@ classdef QKDSolverInput < handle
             arguments
                 obj (1,1) QKDSolverInput
             end
-
             numIterations = prod(uint64(structfun(@numel,obj.scanParameters)),"native");
+        end
 
+        function set.scanParametersGlobalOptWarmStart(obj,scanParamGlobalOptWarmStart)
+            arguments
+                obj (1,1) QKDSolverInput
+                scanParamGlobalOptWarmStart (1,1) struct
+            end
+
+            obj.privateScanParametersGlobalOptWarmStart = scanParamGlobalOptWarmStart;
+        end
+
+        function scanParamGlobalOptWarmStart = get.scanParametersGlobalOptWarmStart(obj)
+            arguments
+                obj (1,1) QKDSolverInput
+            end
+
+            % If we load an old set of results, then the default value of
+            % false is populated.
+            if isempty(fieldnames(obj.privateScanParametersGlobalOptWarmStart))
+                for name = string(fieldnames(obj.scanParameters)).'
+                    obj.privateScanParametersGlobalOptWarmStart.(name) = false;
+                end
+            end
+
+            scanParamGlobalOptWarmStart = obj.privateScanParametersGlobalOptWarmStart;
+        end
+
+        function hasScanParameters = get.hasScanParameters(obj)
+            arguments
+                obj (1,1) QKDSolverInput
+            end
+            hasScanParameters = ~isempty(fieldnames(obj.scanParameters));
+        end
+
+        function hasFixedParameters = get.hasFixedParameters(obj)
+            arguments
+                obj (1,1) QKDSolverInput
+            end
+            hasFixedParameters = ~isempty(fieldnames(obj.fixedParameters));
+        end
+
+        function hasOptimizeParameters = get.hasOptimizeParameters(obj)
+            arguments
+                obj (1,1) QKDSolverInput
+            end
+            hasOptimizeParameters = ~isempty(fieldnames(obj.optimizeParameters));
         end
     end
 

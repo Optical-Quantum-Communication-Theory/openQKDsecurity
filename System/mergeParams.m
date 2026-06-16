@@ -23,7 +23,7 @@ names2 = fieldnames(newParams);
 %check which parameters need to be overwritten
 overwrittenParams = intersect(fieldnames(oldParams),names2);
 if giveWarning && ~isempty(overwrittenParams)
-        warning("Overwriting parameter(s) '%s'.",strjoin(overwrittenParams,"', '"));
+        warning("mergeParams:OverwritingParams","Overwriting parameter(s) '%s'.",strjoin(overwrittenParams,"', '"));
 end
 
 %merge and overwrite

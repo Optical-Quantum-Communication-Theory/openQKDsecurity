@@ -16,7 +16,7 @@ classdef FrankWolfe
     % * initialPoint: Initial point for the Frank-Wolf algorithm. The user
     %   must verify that this point is within the constraint set for the
     %   convex optimization.
-    % * func: Function handle for the objective function. Takes in any
+    % * objectiveFunc: Function handle for the objective function. Takes in any
     %   point within the constraint set and returns the value of the
     %   objective at it. User must ensure that the function returns a real
     %   finite valued scalar. (Can't be nan, inf, or -inf). Must have
@@ -79,7 +79,7 @@ classdef FrankWolfe
     % FrankWolfe.inProdR FrankWolfe.vanilla FrankWolfe.pairwise
 
     methods (Static)
-        function [optPoint, optVal, FWExitFlag,output] = vanilla(initialPoint,func,...
+        function [currentIterPoint, currentIterFuncVal, FWExitFlag,output] = vanilla(initialPoint,objectiveFunc,...
                 gradFunc,subProblem,debugInfo,printInfo,options)
             % VANILLA A simple implementation of the Frank Wolfe algorithm.
             %
@@ -88,7 +88,7 @@ classdef FrankWolfe
             %
             % Input:
             % * initialPoint: Starting point of the Frank Wolfe algorithm.
-            % * func: The objective function.
+            % * objectiveFunc: The objective function.
             % * gradFunc: The gradient of the objective function.
             % * subProblem: Optimization function for determining Frank
             %   Wolfe step direction.
@@ -114,7 +114,7 @@ classdef FrankWolfe
             %   algorithm. When the relative gap between iterations falls
             %   below this value, the algorithm returns. As a formula this
             %   is given by:
-            %      abs(gap) < options.maxGap*func(previousPoint)
+            %      abs(gap) < options.maxGap*objectiveFunc(previousPoint)
             %   where gap = -<gradf,deltaPoint>. maxGap must be a positive
             %   real number.
             % * stopNegGap (false): Scalar logical. If true, a negative gap
@@ -125,9 +125,9 @@ classdef FrankWolfe
             %   debugInfo.
             %
             % Output:
-            % * optPoint: Optimal point or last valid value returned by the
+            % * currentIterPoint: Optimal point or last valid value returned by the
             %   Frank Wolfe algorithm.
-            % * optVal: Value of the objective function at optPoint.
+            % * currentIterFuncVal: Value of the objective function at optPoint.
             % * FWExitFlag: A FrankWolfeExitFlag enum indicating the exit
             %   status of the Frank Wolfe algorithm.
             % * output: Struct containing a small amount of additional
@@ -137,9 +137,11 @@ classdef FrankWolfe
             %   * lowerBoundFWVal: Best Lower bound recorded by the Frank
             %     Wolfe algorithm. This uses the simple f(point)-gap
             %     formula. Note that this does not take into account any
-            %     numerical imprecision problems.
+            %     numerical imprecision problems. If the subproblem fails
+            %     on the very first point, then this is set to -inf.
             %   * lowerBoundFWPoint: The point that achieved
-            %     lowerBoundFWVal.
+            %     lowerBoundFWVal. If the subproblem fails on the very
+            %     first point, then this is set to all nan.
             %
             % DebugInfo:
             % * subproblemStatusMessage: The status message strings
@@ -150,7 +152,7 @@ classdef FrankWolfe
             % see also FrankWolfe fminbnd optimset SimpleData.Queue
             arguments
                 initialPoint double
-                func (1,1) function_handle
+                objectiveFunc (1,1) function_handle
                 gradFunc (1,1) function_handle
                 subProblem (1,1) function_handle
                 debugInfo (1,1) DebugInfo
@@ -167,16 +169,16 @@ classdef FrankWolfe
             import SimpleData.Queue
 
             % initial set up of point and values
-            optPoint = full(initialPoint); %sparse to full
-            optVal = func(optPoint);
+            currentIterPoint = full(initialPoint); %sparse to full
+            currentIterFuncVal = objectiveFunc(currentIterPoint);
 
-            lowerBoundFWPoint = nan(size(optPoint));
-            lowerBoundFWVal = -inf;
+            lowerBoundFWPoint = nan(size(currentIterPoint));
+            lowerBoundFuncVal = -inf;
 
             if options.storePoints
                 pointsQueue = Queue();
                 debugInfo.storeInfo("pointsQueue",pointsQueue)
-                pointsQueue.push(optPoint);
+                pointsQueue.push(currentIterPoint);
             end
 
 
@@ -195,19 +197,25 @@ classdef FrankWolfe
             %% run Frank-Wolfe algorithm
             for iter = 1:options.maxIter
 
-                tstartFW=tic;
+                timeStartFWIter=tic;
 
                 %*** update gradient ***
-                gradf = gradFunc(optPoint);
+                gradf = gradFunc(currentIterPoint);
 
                 %Find step direction
-                [deltaPoint,exitFlag,subproblemStatus(iter)] = subProblem(optPoint,gradf);
+                [deltaPoint,exitFlag,subproblemStatus(iter)] = subProblem(currentIterPoint,gradf);
                 debugInfo.storeInfo("subproblemStatusMessage",subproblemStatus);
 
                 if exitFlag == SubProblemExitFlag.failed
-                    FWExitFlag = FrankWolfeExitFlag.subproblemFailed;
+                    % if it failed on the first point, then no lower bound
+                    % can be established.
+                    if iter == 1
+                        FWExitFlag = FrankWolfeExitFlag.subproblemFailedOnStart;
+                    else
+                        FWExitFlag = FrankWolfeExitFlag.subproblemFailed;
+                    end
                     output.iterations = iter;
-                    output.lowerBoundFWVal = lowerBoundFWVal;
+                    output.lowerBoundFWVal = lowerBoundFuncVal;
                     output.lowerBoundFWPoint = lowerBoundFWPoint;
                     return
                 end
@@ -217,60 +225,63 @@ classdef FrankWolfe
                 gap = -FrankWolfe.inProdR(gradf,deltaPoint); % -<gradf,deltaPoint>
 
                 %get the Frank Wolfe lower bound at this point
-                tempFWLB = optVal - gap;
-                if tempFWLB > lowerBoundFWVal
-                    lowerBoundFWVal = tempFWLB;
-                    lowerBoundFWPoint = optPoint;
+                tempFuncValLowerBound = currentIterFuncVal - max(gap,0);
+                if tempFuncValLowerBound > lowerBoundFuncVal
+                    lowerBoundFuncVal = tempFuncValLowerBound;
+                    lowerBoundFWPoint = currentIterPoint;
                 end
 
                 %Do exact line search in step direction deltaPoint to find
                 %step size
-                [stepSize,fvalNextPoint] = fminbnd(@(stepSize)func(optPoint+stepSize*deltaPoint),...
+                [stepSize,nextIterFuncVal] = fminbnd(@(stepSize)objectiveFunc(currentIterPoint+stepSize*deltaPoint),...
                     options.linearSearchMinStep,1,optimOptions);
 
                 %*** update optimal point for next round ***
-                optPoint = optPoint + stepSize*deltaPoint;
+                currentIterPoint = currentIterPoint + stepSize*deltaPoint;
 
                 if options.storePoints
-                    pointsQueue.push(optPoint);
+                    pointsQueue.push(currentIterPoint);
                 end
 
-                tFW = toc(tstartFW);
+                durationFWIter = toc(timeStartFWIter);
 
                 if printInfo
-                    relGap = gap/optVal;
-                    relFvalGap = (fvalNextPoint-optVal)/optVal;
-                    fprintf(numFormat, iter,gap,relGap,fvalNextPoint,relFvalGap,tFW);
+                    relGap = gap/currentIterFuncVal;
+                    relFuncValGap = (nextIterFuncVal-currentIterFuncVal)/currentIterFuncVal;
+                    fprintf(numFormat, iter,gap,relGap,nextIterFuncVal,relFuncValGap,exitFlag,durationFWIter);
                 end
 
                 %check if we have found a point to stop, or if we need to
                 %keep going by checking the gap
                 if options.stopNegGap
-                    stopCrit = gap;
+                    stopCriteria = gap;
                 else
-                    stopCrit = abs(gap);
+                    stopCriteria = abs(gap);
                 end
-                if  stopCrit < options.maxGap*abs(optVal)
-                    optVal = fvalNextPoint;
+                if  stopCriteria < options.maxGap*abs(currentIterFuncVal)
+                    currentIterFuncVal = nextIterFuncVal;
                     FWExitFlag = FrankWolfeExitFlag.solved;
                     output.iterations = iter;
-                    output.lowerBoundFWVal = lowerBoundFWVal;
+                    output.lowerBoundFWVal = lowerBoundFuncVal;
                     output.lowerBoundFWPoint = lowerBoundFWPoint;
                     return
                 end
 
                 %*** update fval for next round ***
-                optVal = fvalNextPoint;
+                currentIterFuncVal = nextIterFuncVal;
             end
 
             % exceeded maximum number of iterations
             FWExitFlag = FrankWolfeExitFlag.exceededMaxIter;
             output.iterations = iter;
-            output.lowerBoundFWVal = lowerBoundFWVal;
+            output.lowerBoundFWVal = lowerBoundFuncVal;
             output.lowerBoundFWPoint = lowerBoundFWPoint;
         end
 
-        function [optPoint, optVal, FWExitFlag, output] = pairwise(initialPoint,func,gradFunc,subProblem,debugInfo,printInfo,options)
+
+
+        %% A different variation of the Frank Wolfe Algorithm. Very rarely used.
+        function [optPoint, optVal, FWExitFlag, output] = pairwise(initialPoint,objectiveFunc,gradFunc,subProblem,debugInfo,printInfo,options)
             % PAIRWISE Implementation of the pairwise Frank Wolfe
             % algorithm. For some problems this has better convergence than
             % the vanilla Frank Wolfe algorithm. The algorithm can be found
@@ -282,7 +293,7 @@ classdef FrankWolfe
             %
             % Input:
             % * initialPoint: Starting point of the Frank Wolfe algorithm.
-            % * func: The objective function.
+            % * objectiveFunc: The objective function.
             % * gradFunc: The gradient of the objective function.
             % * subProblem: Optimization function for determining Frank
             %   Wolfe step direction.
@@ -349,9 +360,11 @@ classdef FrankWolfe
             %   * lowerBoundFWVal: Best Lower bound recorded by the Frank
             %     Wolfe algorithm. This uses the simple f(point)-gap
             %     formula. Note that this does not take into account any
-            %     numerical imprecision problems.
+            %     numerical imprecision problems. If the subproblem fails
+            %     on the very first point, then this is set to -inf.
             %   * lowerBoundFWPoint: The point that achieved
-            %     lowerBoundFWVal.
+            %     lowerBoundFWVal. If the subproblem fails on the very
+            %     first point, then this is set to all nan.
             %
             % DebugInfo:
             % * subproblemStatusMessage: The status message strings
@@ -362,7 +375,7 @@ classdef FrankWolfe
             % see also FrankWolfe fminbnd optimset SimpleData.Queue
             arguments
                 initialPoint double
-                func (1,1) function_handle
+                objectiveFunc (1,1) function_handle
                 gradFunc (1,1) function_handle
                 subProblem (1,1) function_handle
                 debugInfo (1,1) DebugInfo
@@ -380,7 +393,7 @@ classdef FrankWolfe
 
             % initial set up of point and values
             optPoint = full(initialPoint); %sparse to full
-            optVal = func(optPoint);
+            optVal = objectiveFunc(optPoint);
 
             lowerBoundFWPoint = nan(size(optPoint));
             lowerBoundFWVal = -inf;
@@ -424,7 +437,13 @@ classdef FrankWolfe
                 debugInfo.storeInfo("subproblemStatusMessage",subproblemStatus);
 
                 if exitFlag == SubProblemExitFlag.failed
-                    FWExitFlag = FrankWolfeExitFlag.subproblemFailed;
+                    % if it failed on the first point, then no lower bound
+                    % can be established.
+                    if iter == 1
+                        FWExitFlag = FrankWolfeExitFlag.subproblemFailedOnStart;
+                    else
+                        FWExitFlag = FrankWolfeExitFlag.subproblemFailed;
+                    end
                     output.iterations = iter;
                     output.lowerBoundFWVal = lowerBoundFWVal;
                     output.lowerBoundFWPoint = lowerBoundFWPoint;
@@ -436,7 +455,7 @@ classdef FrankWolfe
                 gap = -FrankWolfe.inProdR(gradf,deltaPoint); % -<gradf,deltaPoint>
 
                 %get the Frank Wolfe lower bound at this point
-                tempFWLB = optVal - gap;
+                tempFWLB = optVal - max(gap,0);
                 if tempFWLB > lowerBoundFWVal
                     lowerBoundFWVal = tempFWLB;
                     lowerBoundFWPoint = optPoint;
@@ -460,7 +479,7 @@ classdef FrankWolfe
 
                 %Do exact line search in step direction deltaPoint to find
                 %step size
-                [stepSize,fvalNextPoint] = fminbnd(@(stepSize)func(optPoint+stepSize*deltaPair),...
+                [stepSize,fvalNextPoint] = fminbnd(@(stepSize)objectiveFunc(optPoint+stepSize*deltaPair),...
                     0,maxStepSize,optimOptions);
 
                 %*** update optimal point for next round ***
@@ -525,7 +544,7 @@ classdef FrankWolfe
                 if printInfo
                     relGap = gap/optVal;
                     relFvalGap = (fvalNextPoint-optVal)/optVal;
-                    fprintf(numFormat, iter,gap,relGap,fvalNextPoint,relFvalGap,stepType,tFW);
+                    fprintf(numFormat, iter,gap,relGap,fvalNextPoint,relFvalGap,stepType,exitFlag,tFW);
                 end
 
                 %check if we have found a point to stop, or if we need to
@@ -564,7 +583,7 @@ classdef FrankWolfe
             % val = real(full(sum(conj(array1).*array2,"all"))). For
             % example, this covers all n-d arrays of real numbers and mxm
             % complex hermitian operators.
-            val = real(full(sum(conj(array1).*array2,"all")));
+            val = real(full(sum(conj(array1(:)).*array2(:))));
         end
     end
 end
@@ -593,11 +612,11 @@ end
 function [numFormat,headerString] = printFormatVanilla()
 % format for print the ASCII table. Gives the header string and the
 % formatting string for the values. Ordered: FW Iter, gap, relative gap,
-% func val, rel func gap, time (s)
-numFormat = strjoin(["%7d","%+13.6e","%+13.6e","%+13.6e","%+13.6e","%8.2e"]," | ");
+% func val, rel func gap, sub prob status, time (s)
+numFormat = strjoin(["%7d","%+13.6e","%+13.6e","%+13.6e","%+13.6e","%15s","%8.2e"]," | ");
 numFormat = "| "+numFormat+" |\n";
-headerString =compose(["%7s","%13s","%13s","%13s","%13s","%8s"],...
-    ["FW Iter","gap","relative gap","func val", "rel func gap","time (s)"]);
+headerString =compose(["%7s","%13s","%13s","%13s","%13s","%15s","%8s"],...
+    ["FW Iter","gap","relative gap","func val", "rel func gap","sub prob status","time (s)"]);
 headerString = "| "+strjoin(strjust(headerString,"center")," | ")+" |\n";
 end
 
@@ -605,10 +624,10 @@ end
 function [numFormat,headerString] = printFormatPairwise()
 % format for print the ASCII table. Gives the header string and the
 % formatting string for the values. Ordered: FW Iter, gap, relative gap,
-% func val, rel func gap, time (s)
-numFormat = strjoin(["%7d","%+13.6e","%+13.6e","%+13.6e","%+13.6e","%9s","%8.2e"]," | ");
+% func val, rel func gap, step type, sub prob status, time (s)
+numFormat = strjoin(["%7d","%+13.6e","%+13.6e","%+13.6e","%+13.6e","%9s","%15s","%8.2e"]," | ");
 numFormat = "| "+numFormat+" |\n";
-headerString =compose(["%7s","%13s","%13s","%13s","%13s","%9s","%8s"],...
-    ["FW Iter","gap","relative gap","func val", "rel func gap","step type","time (s)"]);
+headerString =compose(["%7s","%13s","%13s","%13s","%13s","%9s","%15s","%8s"],...
+    ["FW Iter","gap","relative gap","func val", "rel func gap","step type","sub prob status","time (s)"]);
 headerString = "| "+strjoin(strjust(headerString,"center")," | ")+" |\n";
 end

@@ -39,9 +39,9 @@ function [keyRate, modParser] = BasicKeyRateFunc(params,options,mathSolverFunc,d
 % * verboseLevel: (global option) See makeGlobalOptionsParser for details.
 % DebugInfo:
 % * deltaLeak: Error correction cost calculated for the protocol.
-% * keyRateRelEntStep2Linearization: Estimation of the key rate by using
-%   the relative entropy at the point where the Frank-Wolfe solver starts
-%   its step 2 linearization. THIS IS NOT A SAFE LOWER BOUND.
+% * keyRateRelEntStep2LinearizationUNSAFE: Estimation of the key rate by
+%   using the relative entropy at the point where the Frank-Wolfe solver
+%   starts its step 2 linearization. THIS IS NOT A SAFE LOWER BOUND.
 %
 % Reviewed by Devashish Tupkary 2023/09/18
 % See also QKDKeyRateModule, makeGlobalOptionsParser
@@ -149,12 +149,12 @@ if options.verboseLevel>=1
 end
 
 %set the linearization estimate key rate as well for debugging
-if isfield(debugMathSolver.info,"relEntStep2Linearization")
-    keyRateStep2Linearization = debugMathSolver.info.relEntStep2Linearization - deltaLeak;
-    debugInfo.storeInfo("keyRateRelEntStep2Linearization",keyRateStep2Linearization)
+if isfield(debugMathSolver.info,"relEntStep2LinearizationUNSAFE")
+    keyRateStep2Linearization = debugMathSolver.info.relEntStep2LinearizationUNSAFE - deltaLeak;
+    debugInfo.storeInfo("keyRateRelEntStep2LinearizationUNSAFE",keyRateStep2Linearization)
 
     if options.verboseLevel>=2
-        fprintf("Key rate using step 2 linearization intial value: %e\n",max(keyRateStep2Linearization,0))
+        fprintf("Key rate using step 2 linearization intial value (UNSAFE): %e\n",max(keyRateStep2Linearization,0))
     end
 end
 end

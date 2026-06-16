@@ -22,14 +22,14 @@ function epsilon = perturbationChannelEpsilon(rho,minEigenvalue,options)
 %
 % See also FW2StepSolver, perturbationChannel
 arguments
-    rho (:,:) double {mustHavePositiveTrace} % Maybe we also need to check for Hermitian
+    rho (:,:) double {mustHavePositiveTrace,mustBeHermitian} % Maybe we also need to check for Hermitian
     minEigenvalue (1,1) double {mustBeGreaterThanOrEqual(minEigenvalue,0)} = 1e-14;
     options.perturbationCheck (1,1) logical = true;
     options.step2Enhancement (1,1) logical = false;
 end
 
 dim = size(rho,1);
-eigMin = lambda_min(rho);
+eigMin = min(eig(rho));
 epsilon=0;
 if eigMin<=minEigenvalue
 

@@ -28,7 +28,7 @@ debugInfo.storeInfo("perturbationValue",perturbation);
 
 % 2. Calculate f_epsilon_p(rho) and its gradient at the same point.
 fval = primalfep(perturbation, rho, keyProj, krausOps,safeCutOff);
-debugInfo.storeInfo("relEntStep2Linearization",fval);
+debugInfo.storeInfo("relEntStep2LinearizationUNSAFE",fval);
 
 gradf = primalDfep(perturbation, rho, keyProj, krausOps,safeCutOff);
 
@@ -61,8 +61,10 @@ arguments %simple arguments block just to get everything in the correct shape
 end
 gRho = ApplyMap(rho, krausOps);
 zRho = ApplyMap(gRho, keyProj);
+gRho = (gRho+gRho')/2;
+zRho = (zRho+zRho')/2;
 
-rangeTop = max(lambda_max(gRho),lambda_max(zRho));
+rangeTop = max(max(eig(gRho)),max(eig(zRho)));
 safeCutOff = rangeTop*1e-14; % 1e-14 chosen because its small but still stable. 10e-15 breaks down.
 
 epsilonG = perturbationChannelEpsilon(gRho,safeCutOff,"step2Enhancement",true);

@@ -64,13 +64,13 @@ end
 % op_i*op_j = \delta_{i,j}*op_i.
 for index1 = 1:numel(keyProj)
 
-    if ~all(equaltol(keyProj{index1}*keyProj{index1},keyProj{index1}))
+    if ~all(equaltol(keyProj{index1}*keyProj{index1},keyProj{index1}),"all")
         value = false;
         return
     end
 
     for index2 = index1+1:numel(keyProj)
-        if ~all(equaltol(keyProj{index1}*keyProj{index2},0,"DataScale",1))
+        if ~all(equaltol(keyProj{index1}*keyProj{index2},0,"DataScale",1),"all")
             value = false;
             return
         end

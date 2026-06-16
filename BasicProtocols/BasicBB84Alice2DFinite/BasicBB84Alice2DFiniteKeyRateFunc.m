@@ -47,8 +47,9 @@ function [keyRate, modParser, debugInfo] = BasicBB84Alice2DFiniteKeyRateFunc(par
 %
 % DebugInfo:
 % * relEnt: The computed lower bound on the relative entropy.
-% * keyRateRelEntStep2Linearization: The relative entropy at the
-%   linearization point.
+% * keyRateRelEntStep2LinearizationUNSAFE: Estimation of the key rate by
+%   using the relative entropy at the point where the Frank-Wolfe solver
+%   starts its step 2 linearization. THIS IS NOT A SAFE LOWER BOUND.
 %
 % See also QKDKeyRateModule, makeGlobalOptionsParser
 arguments
@@ -194,15 +195,15 @@ end
 keyRate = finiteKeyRate(relEnt, deltaLeak, params.alphabetSize, 1-params.pTest, ...
     params.epsilonBar, params.epsilonPA, params.epsilonEC, params.numSignals);
 
-if isfield(debugMathSolver.info,"relEntStep2Linearization")
-    relEntStep2Linearization = debugMathSolver.info.relEntStep2Linearization; 
+if isfield(debugMathSolver.info,"relEntStep2LinearizationUNSAFE")
+    relEntStep2LinearizationUNSAFE = debugMathSolver.info.relEntStep2LinearizationUNSAFE;
     
-    keyRateStep2Linearization = finiteKeyRate( relEntStep2Linearization, deltaLeak, ...
+    keyRateStep2LinearizationUNSAFE = finiteKeyRate( relEntStep2LinearizationUNSAFE, deltaLeak, ...
         params.alphabetSize, 1-params.pTest, params.epsilonBar, params.epsilonPA, params.epsilonEC, params.numSignals);
     if options.verboseLevel>=2
-        fprintf("Key rate using step 2 linearization intial value: %e\n",max(keyRateStep2Linearization,0))
+        fprintf("Key rate using step 2 linearization intial value  (UNSAFE): %e\n",max(keyRateStep2LinearizationUNSAFE,0))
     end
-    debugInfo.storeInfo("keyRateRelEntStep2Linearization",keyRateStep2Linearization)
+    debugInfo.storeInfo("keyRateRelEntStep2LinearizationUNSAFE",keyRateStep2LinearizationUNSAFE)
     
 end
 

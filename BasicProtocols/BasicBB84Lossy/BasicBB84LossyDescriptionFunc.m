@@ -126,7 +126,7 @@ krausOps = {krausOpZ,krausOpX};
 
 krausSum = 0;
 for index = 1:numel(krausOps)
-    krausSum = krausOps{index}'*krausOps{index};
+    krausSum = krausSum + krausOps{index}'*krausOps{index};
 end
 debugInfo.storeInfo("krausSum", krausSum);
 

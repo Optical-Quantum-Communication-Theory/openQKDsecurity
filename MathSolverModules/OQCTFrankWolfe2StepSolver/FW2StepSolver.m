@@ -84,8 +84,8 @@ function [relEntLowerBound,modParser] = FW2StepSolver(params,options,debugInfo)
 % * relEntStep1: Value of the relative entropy achieved during the
 %   Frank-Wolfe approximate minimization. It can help with determining if
 %   Frank-Wolfe could not converge, or just barely converges.
-% * relEntStep2Linearization: The relative entropy at the start of the
-%   linearization routine used for step 2. The initial point may be
+% * relEntStep2LinearizationUNSAFE: The relative entropy at the start of
+%   the linearization routine used for step 2. The initial point may be
 %   perturbed slightly from step 1.
 % * relEntLowerBound: Lower bound on the relative entropy from step 2 of
 %   the solver. The lower bound returned by the solver takes the maximum

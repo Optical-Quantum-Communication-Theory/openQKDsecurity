@@ -28,6 +28,8 @@ end
 
 gRho = ApplyMap(rho,krausOperators);
 zRho = ApplyMap(gRho, keyProj);
+gRho = (gRho+gRho')/2;
+zRho = (zRho+zRho')/2;
 
 gRho = perturbationChannel(gRho, perturbation);
 zRho = perturbationChannel(zRho, perturbation);

@@ -49,9 +49,9 @@ function [keyRate, modParser] = BasicBB84WCPDecoyKeyRateFunc(params,options,math
 %   be a positive integer.
 % DebugInfo:
 % * deltaLeak: Error correction cost calculated for the protocol.
-% * keyRateRelEntStep2Linearization: Estimation of the key rate by using
-%   the relative entropy at the point where the Frank-Wolfe solver starts
-%   its step 2 linearization. THIS IS NOT A SAFE LOWER BOUND.
+% * keyRateRelEntStep2LinearizationUNSAFE: Estimation of the key rate by
+%   using the relative entropy at the point where the Frank-Wolfe solver
+%   starts its step 2 linearization. THIS IS NOT A SAFE LOWER BOUND.
 %
 % Reviewed by Devashish Tupkary 2023/09/20
 % See also QKDKeyRateModule, makeGlobalOptionsParser
@@ -217,12 +217,12 @@ if options.verboseLevel>=1
 end
 
 %set the linearization estimate key rate as well for debuging
-if isfield(debugMathSolver.info,"relEntStep2Linearization")
-    keyRateStep2Linearization = probSinglePhoton*debugMathSolver.info.relEntStep2Linearization - deltaLeak; %don't forget single photon scaling
-    debugInfo.storeInfo("keyRateRelEntStep2Linearization",keyRateStep2Linearization)
+if isfield(debugMathSolver.info,"relEntStep2LinearizationUNSAFE")
+    keyRateStep2LinearizationUNSAFE = probSinglePhoton*debugMathSolver.info.relEntStep2LinearizationUNSAFE - deltaLeak; %don't forget single photon scaling
+    debugInfo.storeInfo("keyRateRelEntStep2LinearizationUNSAFE",keyRateStep2LinearizationUNSAFE)
 
     if options.verboseLevel>=2
-        fprintf("Key rate using step 2 linearization intial value: %e\n",max(keyRateStep2Linearization,0))
+        fprintf("Key rate using step 2 linearization intial value (UNSAFE): %e\n",max(keyRateStep2LinearizationUNSAFE,0))
     end
 end
 end

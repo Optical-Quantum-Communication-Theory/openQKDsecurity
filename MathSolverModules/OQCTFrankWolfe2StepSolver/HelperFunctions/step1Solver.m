@@ -69,6 +69,12 @@ cellFrankWolfOpts = namedargs2cell(frankWolfeOptions);
 [rho,fval,exitFlag] = frankWolfeMethod(rho,func,gradFunc, ...
     subProblemFunc,debugFrankWolfe,options.verboseLevel>=1,cellFrankWolfOpts{:});
 
+if exitFlag == FrankWolfeExitFlag.subproblemFailedOnStart
+    throw(MException("FW2StepSolver:SubproblemFailedOnStart", ...
+        "The subproblem function failed on the first point and no gap can" + ...
+        " be established for a lower bound."))
+end
+
 
 % Warn the user if FW had any problems.
 if options.verboseLevel >= 1
@@ -241,7 +247,7 @@ minimize(real(trace(gradf*deltaRho)))
 primalConstraints(cvx_problem,deltaRho+rho,eqCons,ineqCons,vec1NormCons,...
     mat1NormCons,linConTol);
 
-deltaRho+rho == hermitian_semidefinite(dim);
+deltaRho+rho == hermitian_semidefinite(dim); %#ok<VUNUS>
 
 cvx_end
 
@@ -254,15 +260,5 @@ if options.blockDiagonal
 end
 
 statusMessage = string(cvx_status);
-
-switch statusMessage
-    case "Solved"
-        exitFlag = SubProblemExitFlag.solved;
-    case "Inaccurate/Solved"
-        exitFlag = SubProblemExitFlag.inaccurate;
-    case "Failed"
-        exitFlag = SubProblemExitFlag.failed;
-    otherwise
-        exitFlag = SubProblemExitFlag.failed;
-end
+exitFlag = SubProblemExitFlag.cvxStatus2ExitFlag(statusMessage);
 end

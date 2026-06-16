@@ -29,6 +29,8 @@ arguments
 end
 gRho = ApplyMap(rho,krausOperators);
 zRho = ApplyMap(gRho, keyProj);
+gRho = (gRho+gRho')/2;
+zRho = (zRho+zRho')/2;
 
 % note that the perturbation commutes with Z, so we perturb afterwards
 gRho = perturbationChannel(gRho, perturbation);

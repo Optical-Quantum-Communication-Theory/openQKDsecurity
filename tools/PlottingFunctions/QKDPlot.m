@@ -214,7 +214,7 @@ if simpleIndexingFlag
     % same size and if so, convert to a simple indexing
     numelEach = cellfun(@numel,resultsSets);
     if all(numelEach == numelEach(1))
-        dataSets{:} = 1:numelEach(1);
+        dataSets(:) = {1:numelEach(1)};
     else
         throw(MException("plotParameters:SimleAssignmentOnlyForSameSize",...
             "If the parameters can't be converted to the single real values," + ...

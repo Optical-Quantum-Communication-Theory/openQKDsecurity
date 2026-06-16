@@ -44,8 +44,8 @@ classdef ErrorHandling < uint8
 
                 case ErrorHandling.CatchWarn
                     warning("ErrorHandling:CatchWarn",...
-                        "Caught the error: %s.\n%s\nSee debugInfo for stack trace.", ...
-                        err.identifier,err.message);
+                        "Caught the error: %s.\n%s\nSee debugInfo for additional info.", ...
+                        err.identifier,err.getReport);
                     debugInfo.storeInfo("error",err);
 
                 case ErrorHandling.DontCatch

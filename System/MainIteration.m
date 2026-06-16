@@ -15,6 +15,9 @@ function results = MainIteration(qkdSolverInput,scanIndexList)
 % returns. This function is also in charge of setting up wrapped protocols
 % for optimization modules and executing Evaluateprotocol.
 %
+% Note: Cannot use option scanIndexList when using warm start global
+% optimization! ie. when qkdSolverInput.useWarmStart is true.
+%
 % Inputs:
 % * qkdSolverInput: A full QKDSolverInput with all required modules. If
 %   optimization parameters are given, then a QKDOptimizationModule must
@@ -33,7 +36,10 @@ function results = MainIteration(qkdSolverInput,scanIndexList)
 % See also QKDSolverInput, EvaluateProtocol
 arguments
     qkdSolverInput (1,1) QKDSolverInput {QKDSolverInput.checkQKDSolverInput(qkdSolverInput)}
-    scanIndexList (:,1) uint64 {mustBeSubset(scanIndexList,qkdSolverInput)}= 1:qkdSolverInput.totalIterations;
+    % TODO: add check to make sure we can't warm start while scanIndexList
+    % is not 1:qkdSolverInput.totalIterations
+    scanIndexList (:,1) uint64 {mustBeSubset(scanIndexList,qkdSolverInput), ...
+        warmStartFullListOnly(scanIndexList,qkdSolverInput)}= 1:qkdSolverInput.totalIterations;
 end
 
 %extract global options
@@ -47,11 +53,9 @@ globalOptions = globalOptionsParser.Results;
 % any. If not, than just "loop" a single instance.
 scanFields = fieldnames(qkdSolverInput.scanParameters);
 
-haveScanParams = ~isempty(scanFields);
-
 % get the number of elements for each scan parameter, leaves the list empty
 % if there are none.
-scanSize = structfun(@numel,qkdSolverInput.scanParameters);
+scanSize = structfun(@numel,qkdSolverInput.scanParameters).';
 
 numIterations = numel(scanIndexList);
 
@@ -59,6 +63,28 @@ results = struct("debugInfo",cell(numIterations,1),...
     "keyRate",cell(numIterations,1),...
     "currentParams",cell(numIterations,1));
 
+%% setup warm starts (if needed)
+if qkdSolverInput.hasOptimizeParameters && qkdSolverInput.useWarmStarts
+
+    warmStarter = WarmStarter.newWarmStarter(qkdSolverInput);
+
+    % % which scan parameters are flagged for warm starts
+    % warmStartFlags =  structfun(@(x) x,qkdSolverInput.scanParametersGlobalOptWarmStart);
+    % 
+    % % If there are no warm start parameters, then we don't actually need to
+    % % run this.
+    % needsWarmStart = any(warmStartFlags,"all");
+    % 
+    % if needsWarmStart
+    %     if isscalar(scanSize)
+    %         warmStartIndexCache = ones(scanSize,1);
+    %     else
+    %         warmStartIndexCache = ones(scanSize);
+    %     end
+    % end
+end
+
+%% main loop
 % loop over every combination using ind2subPlus to parse the linear
 % index into the indexes of each scan parameters cell array. (or the
 % selected subset from scanIndexList).
@@ -74,7 +100,7 @@ for loopIndex = 1:numIterations
         fprintf("\nIteration %d of %d\n",loopIndex,numIterations)
     end
 
-    if haveScanParams
+    if qkdSolverInput.hasScanParameters
         % get the current combination of scan parameters
         scanVec = ind2subPlus(scanSize,scanIndex);
         scanStruct = struct();
@@ -83,16 +109,26 @@ for loopIndex = 1:numIterations
         end
 
         %merge the fixed parameters with the scan parameters to get the
+        %current parameters
         currentParams = mergeParams(currentParams,scanStruct);
     end
 
 
     % Check if there are any parameters to optimize over.
-    if ~isempty(fieldnames(qkdSolverInput.optimizeParameters))
+    if qkdSolverInput.hasOptimizeParameters
+
+        optimizerParams = qkdSolverInput.optimizeParameters;
+
+        % Only warm start if there are warm start parameters (and warm
+        % start is enabled)
+        if qkdSolverInput.useWarmStarts && warmStarter.needsWarmStart
+            optimizerParams = warmStarter.warmUpOptimizationParamters(scanIndex,results);
+        end
+
         % Optimize those parameters and get the optimal parameter
         % selections.
         [optimalParameters,optimizerDebugInfo,optimizerErrorFlag] =...
-            runOptimization(currentParams,qkdSolverInput,globalOptions);
+            runOptimization(currentParams,qkdSolverInput,optimizerParams,globalOptions);
 
 
         if optimizerErrorFlag
@@ -100,8 +136,6 @@ for loopIndex = 1:numIterations
                 currentParams,qkdSolverInput.optimizeParameters);
             continue
         end
-
-
         currentResults.debugInfo.optimizer = optimizerDebugInfo;
 
         currentParams = mergeParams(currentParams,optimalParameters);
@@ -114,7 +148,6 @@ for loopIndex = 1:numIterations
 
     results(loopIndex) = currentResults;
 end
-
 end
 
 function [keyRate,debugInfo] = runProtocol(params, qkdSolverInput,isOptimizing)
@@ -132,7 +165,7 @@ end
 params = GroupParamNames(params);
 
 if isOptimizing
-    %when optimizing, we pass in the optimizers global options override
+    %when optimizing, we pass in the optimizer's global options override
     %when evaluating the protocol.
     optimizerOverrideGlobalOptions = qkdSolverInput.optimizerModule.optimizerOverrideGlobalOptions;
 else
@@ -148,19 +181,23 @@ end
 
 %% optimization
 
-function [optimalParams, debugInfo,errorFlag] = runOptimization(params,qkdSolverInput,globalOptions)
+function [optimalParams, debugInfo,errorFlag] = runOptimization(currentParams,qkdSolverInput,optimizerParams,globalOptions)
 % run the optimizer for the current params and solve for the estimated
 % optimal choice of the optimizeParams.
-arguments
-    params (1,1) struct
+arguments (Input)
+    currentParams (1,1) struct
     qkdSolverInput (1,1) QKDSolverInput
+    optimizerParams (1,1) struct
     globalOptions (1,1) struct
+end
+arguments (Output)
+    optimalParams (1,1) % either struct of parameters or nan.
+    debugInfo (1,1) struct % already converted
+    errorFlag (1,1) logical
 end
 
 debugInfo = DebugInfo();
 errorFlag = false;
-
-
 
 %get the optimizer and set up it's options
 optimizerModule = qkdSolverInput.optimizerModule;
@@ -168,33 +205,46 @@ optimizerModule = qkdSolverInput.optimizerModule;
 %merge the optimizer's options with the global options.
 options = mergeParams(globalOptions,optimizerModule.options,false);
 
+    % wrap the protocol so it only needs the optimize parameters
+    function [keyRate, debugInfo] = wrappedProtocol(selectedOptimizeParams)
+        % Inputs:
+        % * selectedOptimizeParams: Parameters and values selected by
+        % optimizerModule to calculate the key rate at next.
+        %
+        % Outputs:
+        % * keyRate: Key rate at this choice.
+        % * debugInfo: The DebugInfo object for this choice.
+        [keyRate, debugInfo] = runProtocol( ...
+            mergeParams(currentParams,selectedOptimizeParams,true), ...
+            qkdSolverInput,true);
+    end
+
+% wrap the protocol so it only needs the optimize parameters
+% wrappedProtocol = @(optimizeParams)protocolWrapper(optimizeParams,params,qkdSolverInput);
+
+% run the optimizer.
+if globalOptions.verboseLevel >= 1
+    disp("starting optimization")
+end
+
 try
-
-    %wrap the protocol so it only needs the optimize parameters
-    wrappedProtocol = @(optimizeParams)protocolWrapper(optimizeParams,params,qkdSolverInput);
-
-    %run the optimizer.
-    if globalOptions.verboseLevel >= 1
-        disp("starting optimization")
-    end
-
     [optimizerKeyRate,optimalParams] = ...
-        optimizerModule.modulefunction(qkdSolverInput.optimizeParameters,...
-        wrappedProtocol,options,debugInfo);
-
-    if globalOptions.verboseLevel >= 1
-        fprintf("Optimization finished\nEstimated optimal key rate: %e\n\n",optimizerKeyRate)
-    end
-
+        optimizerModule.modulefunction(optimizerParams,...
+        @wrappedProtocol,options,debugInfo);
 catch err
-    %end the run early, convert the debug information into a structure and
-    %check how errors should be handled.
+    % end the run early, convert the debug information into a structure and
+    % check how errors should be handled.
     ErrorHandling.handle(globalOptions.errorHandling,err,debugInfo);
     debugInfo = debugInfo.DebugInfo2Struct();
     optimalParams = nan;
     errorFlag = true;
     return
 end
+
+if globalOptions.verboseLevel >= 1
+    fprintf("Optimization finished\nEstimated optimal key rate: %e\n\n",optimizerKeyRate)
+end
+
 debugInfo = debugInfo.DebugInfo2Struct();
 end
 
@@ -216,8 +266,8 @@ results = struct();
 % no key rate
 results.keyRate = nan;
 
-%add optimization parameters (with value nan) to currentParams then add to
-%results.
+% add optimization parameters (with value nan) to currentParams then add to
+% results.
 optimizerParamNames = fieldnames(optimizeParameters);
 
 for index = 1:numel(optimizerParamNames)
@@ -247,5 +297,18 @@ if ~(all(ismember(scanIndexList,1:qkdSolverInput.totalIterations),"all") ... % s
     throwAsCaller(MException("MainIteration:IllformedScanList",...
         "The scan list must either be 0 or a subset (without repeats) " + ...
         "of the total number of iterations needed."));
+end
+end
+
+function warmStartFullListOnly(scanIndexList,qkdSolverInput)
+% We can only use warm starts if the scanIndexList is the full list.
+%
+% In the future we may be able to loosen this constraint based on scan
+% parameters which we don't warm start on.
+
+if qkdSolverInput.useWarmStarts && ...
+        ~isequal(scanIndexList.',1:qkdSolverInput.totalIterations) % transpose to fix formatting
+    throwAsCaller(MException("MainIteration:WarmStartNotOnFullList", ...
+        "Can only use warm starts when working on the full scan list."));
 end
 end

@@ -4,6 +4,16 @@ function [previousKeyRate, optimalParams] = coordinateDescentFunc(optimizeParams
 % this function will use coordinate descent to maximize key rate within the
 % given parameter ranges, as defined in the preset.
 %
+% Notes:
+% * Setting maxIterations > 1 provides no benefit if there is only 1
+%   optimization parameter. To save time, the solver will override this
+%   setting and set it to 1 for you. If verboseLevel >= 1, then a warning
+%   message will also be given.
+% * Related to the above note, warm starting this solver with only 1
+%   optimization parameter has little effect. Because, fminbnd itself does
+%   not use an initial point, the initial point is computed separately and
+%   compared against the results from optimizing with fminbnd.
+%
 % Input parameters:
 % * optimizeParams: Struct of parameters to optimize. Each field name is a
 %   parameter name, and the value is a struct containing the fields
@@ -12,6 +22,7 @@ function [previousKeyRate, optimalParams] = coordinateDescentFunc(optimizeParams
 % * wrappedProtocol: A function handle for a one-input function that takes
 %   in the current values of the parameters that are being optimized and
 %   computes the key rate
+%
 % Output:
 % * optimalKeyRate: Estimation of the maximum key rate achievable after
 %   optimizing the optimizeParameters using the optimizerOverride option
@@ -20,6 +31,7 @@ function [previousKeyRate, optimalParams] = coordinateDescentFunc(optimizeParams
 %   rate achievable after optimizing the optimizeParameters using the
 %   optimizerOverride option for each module instead of the regular
 %   options.
+%
 % Options:
 % * verboseLevel (global option): See makeGlobalOptionsParser for details.
 % * errorHandling (global option): See makeGlobalOptionsParser for details.
@@ -28,16 +40,17 @@ function [previousKeyRate, optimalParams] = coordinateDescentFunc(optimizeParams
 % * linearResolution (6): Maximum number of function evaluations
 %   for fminbnd. Must be a positive integer.
 % * iterationTolerance (1e-6): Relative tolerance between previous and
-%   current solution. If the relative differance between them falls bellow
+%   current solution. If the relative difference between them falls bellow
 %   iterationTolerance, than the optimizer exits early with the current
 %   result.
+%
 % DebugInfo:
 % * optimizerParamOrder: Order the optimization parameters are updated.
 % * keyRates: Estimated key rate after each optimization step.
 % * paramValues: Value of each parameter after each optimization step.
 %   The parameters are ordered corresponding to optimizerParamOrder.
 %
-% See also MainIteration, QKDSolverInput, QKDOptimizerModule
+% See also MainIteration, QKDSolverInput, QKDOptimizerModule, WarmStarter
 arguments
     optimizeParams (1,1) struct
     wrappedProtocol (1,1) function_handle
@@ -72,7 +85,7 @@ modParser = makeOptimizerParamParser(mfilename);
 
 [optimizeParams,~] = optimizerValidateProperties(optimizeParams,modParser,true);
 
-%% set up for cooridnate descent
+%% set up for coordinate descent
 if options.verboseLevel >= 2
     linearverbose = "iter";
 else
@@ -87,6 +100,23 @@ debugInfo.storeInfo("optimizerParamOrder",string(optimizerParamNames));
 initValues = cellfun(@(x) optimizeParams.(x).initVal,optimizerParamNames);
 lowerBounds = cellfun(@(x) optimizeParams.(x).lowerBound,optimizerParamNames);
 upperBounds = cellfun(@(x) optimizeParams.(x).upperBound,optimizerParamNames);
+
+
+% Check for the special case where we have only 1 optimization variable,
+% but multiple iterations. (The extra iterations have no effect).
+if isscalar(optimizerParamNames) && options.maxIterations > 1
+    % stop wasted work and set maxIterations to 1.
+    options.maxIterations = 1;
+
+    if options.verboseLevel >= 1
+        warning("coordinateDescentFunc:WastedIterations", ...
+            "For a single optimization parameter, maxIterations > 1 provides" + ...
+            " no benefit. Setting maxIterations to 1 to save time.");
+    end
+end
+
+
+%% set up initial point and kick off the solver
 
 previousValues = initValues;
 previousKeyRate = wrappedProtocol(writeParameters(optimizerParamNames,initValues));

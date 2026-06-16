@@ -1,32 +1,45 @@
-# ignore .mat files
-*.mat
+# Formatted as a white list
+*
 
-# ignore figures
-*.fig
-*.png
-*.jpg
-*.eps
+# Let it explore sub directories
+!*/
 
-# Ignore log files
-*.log
-*.out
+# Let it track this file and other git files
+!.gitignore
+!.gitmodules
+!.gitattributes
+!.mailmap
+!*.keep
+!*.gitkeep
 
-# ignore documentation build files
+# -- Base file types to track --
+
+# Text
+!*.md
+!*.rst
+!*.txt
+
+# Programming Languages and scripts
+!*.m
+!*.py
+!*.sh
+!*.ps1
+!*.bat
+!*.R
+
+# workflows
+!*.yml
+!*.yaml
+
+# -- docs --
+
+# Other file types allowed in docs
+!docs/*.svg
+!docs/*.bib
+!docs/*.tex
+!docs/Makefile
+!docs/*.bat
+!docs/*.css
+
+# Always ignore the docs build folder
 docs/build/
-
-# Don't know where this is from but it keeps comming up
-*.DS_Store
-
-# Default good practice MATLAB ignores:
-# Windows default autosave extension
-*.asv
-
-# OSX / *nix default autosave extension
-*.m~
-
-# Compiled MEX binaries (all platforms)
-*.mex*
-
-# Packaged app and toolbox files
-*.mlappinstall
-*.mltbx

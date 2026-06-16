@@ -5,11 +5,13 @@ function index = sub2indPlus(vecSize,vec)
 %
 % Inputs
 % * vecSize: size of the array, specified as a vector of positive integers.
-% * index: linear indices to convert from, specified as a scalar, vector,
-%   matrix, or multidimensional array.
+% * vec: linear indices to convert from, specified as a vector.
 %
 % See also sub2ind, ind2sub, ind2subPlus
 vec = num2cell(vec);
+if isscalar(vecSize)
+    vecSize = [vecSize,1];
+end
 index = sub2ind(vecSize,vec{:});
 end
 

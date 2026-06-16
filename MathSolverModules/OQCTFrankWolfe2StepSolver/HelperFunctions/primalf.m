@@ -23,6 +23,8 @@ end
 
 gRho = ApplyMap(rho,krausOperators);
 zRho = ApplyMap(gRho,keyProj);
+gRho = (gRho+gRho')/2;
+zRho = (zRho+zRho')/2;
 
 % For consistency get the same perturbation value for both.
 pertG = perturbationChannelEpsilon(gRho,"perturbationCheck",false);
