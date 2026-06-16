@@ -119,11 +119,11 @@ Here is a bibtex entry you can use:
                   Mathur, Natansh and
                   Upadhyaya, Twesh and
                   Lutkenhaus, Norbert},
-  title        = {Open {QKD} {S}ecurity: {V}ersion 2.1.0},
-  month        = dec,
-  year         = 2024,
+  title        = {Open {QKD} {S}ecurity: {V}ersion 2.2.0},
+  month        = jun,
+  year         = 2026,
   publisher    = {Zenodo},
-  version      = {v2.1.0},
+  version      = {v2.2.0},
   doi          = {10.5281/zenodo.14262569},
   url          = {https://doi.org/10.5281/zenodo.14262569}
   swhid        = {swh:1:dir:ce63165f716a15a425fbadc208e27934cc66be10
