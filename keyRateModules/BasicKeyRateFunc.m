@@ -127,6 +127,8 @@ mathSolverInput.equalityConstraints = arrayfun(@(x)...
 if ~isequaln(params.rhoA,nan)
     mathSolverInput.rhoA = params.rhoA;
 else
+    warning("BasicKeyRateFunc:noRhoAConstraint", ...
+        "No rhoA constraint was provided. Falling back to trace(rhoAB) == 1.")
     mathSolverInput.equalityConstraints(end+1) = EqualityConstraint(eye(params.dimA*params.dimB),1);
 end
 
